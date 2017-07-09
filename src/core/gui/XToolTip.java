@@ -13,12 +13,18 @@ import java.awt.*;
 
 public class XToolTip extends JToolTip {
 
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the ToolTip.
+     */
+
     public XToolTip(String text, Font font, Border border, Color background) {
         this.setTipText(text);
         this.setFont(font);
         this.setBorder(border);
         this.setBackground(background);
-
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }

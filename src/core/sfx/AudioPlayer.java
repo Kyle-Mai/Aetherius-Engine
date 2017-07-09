@@ -16,7 +16,7 @@ June 29 2017
 Plays and manages audio files.
  */
 
-public class sfxPlayer extends Thread {
+public class AudioPlayer extends Thread {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
@@ -29,23 +29,23 @@ public class sfxPlayer extends Thread {
     private MediaPlayer mediaPlayer;
     private ArrayList<File> audioFile = new ArrayList<>();
     private ArrayList<Media> audio = new ArrayList<>();
-    static { JFXPanel fxPanel = new JFXPanel(); } //needed to play audio, apparently
+    static { JFXPanel fxPanel = new JFXPanel(); } //needed to play the audio
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
      Used to construct instances of the SFX player.
      */
 
-    public sfxPlayer() {}
+    public AudioPlayer() {}
 
-    public sfxPlayer(File audio) {audioFile.add(audio); }
+    public AudioPlayer(File audio) {audioFile.add(audio); }
 
-    public sfxPlayer(File audio, double volume) {
+    public AudioPlayer(File audio, double volume) {
         audioFile.add(audio);
         setVolume(volume);
     }
 
-    public sfxPlayer(File audio, double volume, double delay) {
+    public AudioPlayer(File audio, double volume, double delay) {
         audioFile.add(audio);
         setVolume(volume);
         this.delay = delay;
@@ -78,11 +78,6 @@ public class sfxPlayer extends Thread {
 
     public void stopAudio() { mediaPlayer.stop(); } //stops the audio
 
-    /*------------------------------------------------------------------------------------------------------------------
-     Run methods.
-     Methods used by the run function when the audio is set to play.
-     */
-
     @Override
     public void run() { //plays the audio
         initializeData();
@@ -101,6 +96,11 @@ public class sfxPlayer extends Thread {
 
         currentThread().interrupt(); //closes the thread down
     }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Core methods.
+     Methods used by the run function when the audio is set to play. These should NOT be touched or accessed.
+     */
 
     private void initializeData() { //initializes the audio files from the data
         audio.clear();

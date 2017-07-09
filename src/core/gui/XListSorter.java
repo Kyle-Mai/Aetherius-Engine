@@ -15,18 +15,20 @@ import java.util.Arrays;
 public class XListSorter implements XConstants {
 
     /*------------------------------------------------------------------------------------------------------------------
-     Variable declarations.
+     Variables.
+     Used to determine the function of the List Sorter.
      */
 
-    private ArrayList<JComponent> list = new ArrayList<>(); //items that will be sent for placement
-    private int sizex, sizey; //when a components size is forced via (autosize = true), this is the size that will be enforced on all components in the sorter
-    private int posx, posy; //the initial position that the list will start sorting from
-    private int space, sort; //the space between the components, and the style of sorting being used (IE. horizontal, vertical, etc)
-    private boolean resize = false; //whether or not the sorter will automatically resize the parent container when required
-    private boolean autosize = false; //whether or not the sorter will force a specific size on all of the components it is sorting
+    private ArrayList<JComponent> list = new ArrayList<>(); //Items that will be sent for placement
+    private int sizex, sizey; //When a components size is forced via (autosize = true), this is the size that will be enforced on all components in the sorter
+    private int posx, posy; //The initial position that the list will start sorting from
+    private int space, sort; //The space between the components, and the style of sorting being used (IE. horizontal, vertical, etc)
+    private boolean resize = false; //Whether or not the sorter will automatically resize the parent container when required
+    private boolean autosize = false; //Whether or not the sorter will force a specific size on all of the components it is sorting
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
+     Used to construct instances of the List Sorter.
      */
 
     public XListSorter() {} //blank constructor
@@ -53,6 +55,7 @@ public class XListSorter implements XConstants {
 
     /*------------------------------------------------------------------------------------------------------------------
      Container editor methods.
+     Used to edit the List Sorter's parameters.
      */
 
     public void forceItemSize(int x, int y) { this.sizex = x; this.sizey = y; this.autosize = true; } //sets the scale of the items in the list
@@ -74,7 +77,8 @@ public class XListSorter implements XConstants {
     public void resizeParent(boolean b) { this.resize = b; }
 
     /*------------------------------------------------------------------------------------------------------------------
-     List editor variables.
+     List editor methods.
+     Used to manipulate the List Sorter's items.
      */
 
     public void addItem(JComponent c) { list.add(c); } //adds a component to the list sorter
@@ -91,27 +95,26 @@ public class XListSorter implements XConstants {
     public int getItemCount() { return list.size(); } //returns the number of items in the sorter
     public int getItemIndex(JComponent component) { return list.indexOf(component); } //returns the index of an item in the list
 
-    //------------------------------------------------------------------------------------------------------------------
-    /**
+    /*------------------------------------------------------------------------------------------------------------------
      Main methodology.
      */
 
-    public void placeItems(JComponent c) { //adds the components to the specified component
+    public void placeItems(JComponent c) { //Adds the components to the specified component
 
         if (list.size() == 0) { //no items > don't attempt to place
             System.out.println("XListSorter - No items in the queue, aborting item placer.");
             return;
         }
 
-        for (JComponent item : list) { //get the inputted components
-            try { //attempt to add item to the specified component
+        for (JComponent item : list) { //Get the inputted components
+            try { //Attempt to add item to the specified component
                 c.add(item);
             } catch (Exception e) { //if it errors during generation, skip it and move to the next iteration
                 System.out.println("ListSorter component was not initialized: " + e.getMessage());
                 continue;
             }
 
-            if (autosize) { //force specific scale on components
+            if (autosize) { //Force specific scale on components
                 item.setSize(sizex, sizey);
             } else { //use component's existing size
                 item.setSize(item.getPreferredSize());
@@ -141,7 +144,7 @@ public class XListSorter implements XConstants {
                     break;
             }
 
-            if (resize) { //if the sorter is allowed to resize the parent container, resize it when necessary
+            if (resize) { //If the sorter is allowed to resize the parent container, resize it when necessary
                 if (posx + space > c.getWidth() && sort == HORIZONTAL_SORT) {
                     c.setPreferredSize(new Dimension(posx + space, c.getHeight()));
                     c.setSize(posx + space, c.getHeight());
@@ -157,6 +160,6 @@ public class XListSorter implements XConstants {
 
     } //placeItems method complete
 
-
+    //------------------------------------------------------------------------------------------------------------------
 
 }

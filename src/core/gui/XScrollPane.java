@@ -11,21 +11,33 @@ import javax.swing.*;
 
 public class XScrollPane extends JScrollPane {
 
-    //default constructor
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the ScrollPane.
+     */
+
     public XScrollPane() {
         this.setOpaque(false);
         this.setBorder(null);
-
     }
 
-    //constructor with scrollbars
     public XScrollPane(int vBar, int hBar) {
         this.setHorizontalScrollBarPolicy(hBar);
         this.setVerticalScrollBarPolicy(vBar);
         this.setOpaque(false);
         this.setBorder(null);
-
     }
 
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the scroll pane's characteristics.
+     */
+
+    public void refresh() { //Refreshes the XFrame's GFX.
+        this.revalidate();
+        this.repaint();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }

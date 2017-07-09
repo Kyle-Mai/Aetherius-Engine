@@ -10,7 +10,12 @@ Extends the JSlider with new constructors and variables.
 import javax.swing.*;
 import java.util.Dictionary;
 
-public class XSlider extends JSlider {
+public class XSlider extends JSlider implements XConstants {
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the XSlider.
+     */
 
     public XSlider(int var1, int var2, int var3, int var4) {
         super(var1, var2, var3, var4);
@@ -18,20 +23,27 @@ public class XSlider extends JSlider {
         this.setFocusable(false);
     }
 
-    public void setTicks(int major, int minor) { //sets both the ticks at once
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the XSlider's characteristics.
+     */
+
+    public void setTicks(int major, int minor) { //Sets the tick spacing characteristics.
         this.setMajorTickSpacing(major);
         this.setMinorTickSpacing(minor);
         this.setPaintTicks(true);
     }
 
-    public void setLabelTable(Dictionary resource) {
+    public void setLabelTable(Dictionary resource) { //Sets the labels used on the Slider.
         super.setLabelTable(resource);
         this.setPaintLabels(true);
     }
 
-    public void refresh() {
+    public void refresh() { //Refreshes the appearance of the XSlider.
         this.revalidate();
         this.repaint();
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }

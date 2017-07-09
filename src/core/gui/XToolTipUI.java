@@ -11,8 +11,14 @@ Custom design for the tooltip.
 
 public class XToolTipUI extends BasicToolTipUI {
 
-    public XToolTipUI() {
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the ToolTipUI.
+     */
 
+    public XToolTipUI() {
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }

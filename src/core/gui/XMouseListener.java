@@ -11,30 +11,37 @@ import java.awt.event.MouseListener;
 
 public abstract class XMouseListener implements MouseListener {
 
-    //variables
+    /*------------------------------------------------------------------------------------------------------------------
+     Variables.
+     Used to determine the function of the Mouse Listeners.
+     */
+
     private String IDValue;
     private int Xv;
     private int Yv;
     private int identifier;
 
-    //constructors
-    public  XMouseListener() { //blank constructor
-    }
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the Mouse Listener.
+     */
 
-    public XMouseListener(String designatedID) { //constructor that takes in an ID number
-        this.setIDValue(designatedID);
-    }
+    public  XMouseListener() {} //blank constructor
+
+    public XMouseListener(String designatedID) { this.setIDValue(designatedID); }
 
     public XMouseListener(int x, int y) { //constructor that takes in an x and y coordinate (for say, referencing a 2D array)
         this.Xv = x;
         this.Yv = y;
     }
 
-    public XMouseListener(int id) { //for setting up a listener with an ID
-        this.identifier = id;
-    }
+    public XMouseListener(int id) { this.identifier = id; }
 
-    //setters
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the Mouse Listener's characteristics.
+     */
+
     public void setIDValue(String ID) { this.IDValue = ID; }
 
     public void setXY(int x, int y) {
@@ -42,14 +49,11 @@ public abstract class XMouseListener implements MouseListener {
         this.Xv = y;
     }
 
-    //getters
     public String getIDValue() { return this.IDValue; }
     public int getIdentifier() { return this.identifier; }
-    public int getValueX() {
-        return this.Xv;
-    }
-    public int getValueY() {
-        return this.Yv;
-    }
+    public int getValueX() { return this.Xv; }
+    public int getValueY() { return this.Yv; }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }

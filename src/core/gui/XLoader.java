@@ -32,10 +32,10 @@ public abstract class XLoader extends SwingWorker<Void, Void> {
         return null;
     }
 
-    protected abstract void done();
+    protected abstract void done(); //Determines what the loader will do when the operation is complete.
 
-    protected abstract void loadOperation(int percent); //what the loader does every time it ticks up a percent
+    abstract void loadOperation(int percent); //What the loader does every time it ticks up a percent
 
-
+    //------------------------------------------------------------------------------------------------------------------
 
 }

@@ -13,7 +13,17 @@ import java.awt.image.BufferedImage;
 
 public class XButtonCustom extends JButton implements XConstants {
 
-    private XLabel buttonText = new XLabel();
+    /*------------------------------------------------------------------------------------------------------------------
+     Variables.
+     Defines the function of the XButton.
+     */
+
+    private XLabel buttonText = new XLabel(); //label that stores the text that will appear on the button.
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the XButtonCustom.
+     */
 
     public XButtonCustom(BufferedImage image, int position) {
         this.setBorder(null);
@@ -25,33 +35,42 @@ public class XButtonCustom extends JButton implements XConstants {
         this.setVerticalAlignment(SwingConstants.CENTER);
         this.setHorizontalAlignment(position);
         super.setContentAreaFilled(false);
-
     }
 
-    public void setText(String text, Font font, Color color) { //sets the text of the button
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the XButton's characteristics.
+     */
+
+    public void setText(String text, Font font, Color color) { //Sets the text of the button.
         buttonText.setText(text, font, color);
         buttonText.setAlignments(SwingConstants.CENTER);
         buttonText.setVisible(true);
     }
 
-    public void setImage(BufferedImage image) {
+    public void setImage(BufferedImage image) { //Sets the image for the button.
         buttonText.setIcon(new ImageIcon(image));
         buttonText.setVisible(true);
     }
 
-    public void placeOn(JComponent parent) { // swing sucks
-        parent.add(this);
-        parent.add(buttonText);
-        buttonText.setBounds(this.getBounds());
-        buttonText.setAlignments(SwingConstants.CENTER);
-    }
-
-    public void setVisible(boolean visible) { // but does it work??
+    public void setVisible(boolean visible) { //When the button's visibility is changed, it will place the text over top of itself.
         super.setVisible(visible);
         this.getParent().add(buttonText);
         buttonText.setBounds(this.getBounds());
         buttonText.setAlignments(SwingConstants.CENTER);
     }
+
+    public XLabel getContent() { return this.buttonText; } //Returns the button's text label
+
+    public void refresh() { //Refreshes the button's appearance.
+        this.revalidate();
+        this.repaint();
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Internal methods.
+     Methods used by the XButton that generally shouldn't be accessed.
+     */
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -60,21 +79,8 @@ public class XButtonCustom extends JButton implements XConstants {
     }
 
     @Override
-    public void setContentAreaFilled(boolean b) {
-    }
+    public void setContentAreaFilled(boolean b) {}
 
-    public XLabel getContent() { //returns the XLabel
-        return this.buttonText;
-    }
-
-    public void refresh() {
-        this.revalidate();
-        this.repaint();
-    }
-
-
-
-
-
+    //------------------------------------------------------------------------------------------------------------------
 
 }

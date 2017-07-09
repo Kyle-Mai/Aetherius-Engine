@@ -12,12 +12,21 @@ import java.awt.*;
 
 public class XScrollBar extends JScrollBar {
 
-    //default constructor
-    public XScrollBar(Color fore, Color back) {
-        this.setBorder(null);
-        this.setOpaque(true);
-        this.setUI(new XScrollBarUI(fore, back));
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the XScrollBar.
+     */
 
+    public XScrollBar() {}
+
+    public XScrollBar(XScrollBarUI ui) { setUI(ui); }
+
+    public XScrollBar(Color fore, Color back) {
+        setBorder(null);
+        setOpaque(true);
+        setUI(new XScrollBarUI(fore, back));
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }

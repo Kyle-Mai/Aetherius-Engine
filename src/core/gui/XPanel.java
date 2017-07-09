@@ -12,9 +12,17 @@ import java.awt.*;
 
 public class XPanel extends JPanel {
 
+    /*------------------------------------------------------------------------------------------------------------------
+     Variables.
+     Used to determine the function of the XPanel, if applicable.
+     */
+
     private int posX, posY;
 
-    /** Main Constructor **/
+    /*------------------------------------------------------------------------------------------------------------------
+     Constructors.
+     Used to construct instances of the XPanel.
+     */
 
     public XPanel(Color backgroundColor) {
         this.setLayout(null);
@@ -22,7 +30,6 @@ public class XPanel extends JPanel {
         this.setFocusable(false);
         this.setOpaque(true);
         this.setBorder(null);
-
     }
 
     public XPanel() {
@@ -30,27 +37,30 @@ public class XPanel extends JPanel {
         this.setFocusable(false);
         this.setOpaque(false);
         this.setBorder(null);
-
     }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the XPanel's characteristics.
+     */
 
     public int getPosX() { return this.posX; }
     public int getPosY() { return this.posY; }
     public void setPosValues(int x, int y) { this.posX = x; this.posY = y; }
 
-
-    /** Base Methods **/
-    //Methods used by the UI core and most UI elements.
-
-    //paints components onto the main window
-    @Override
-    protected void paintComponent(Graphics gfx) {
-        super.paintComponent(gfx);
-
-    }
-
     public void refresh() {
         this.revalidate();
         this.repaint();
     }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Internal methods.
+     Methods used by the XPanel that generally shouldn't be accessed.
+     */
+
+    @Override
+    protected void paintComponent(Graphics gfx) { super.paintComponent(gfx); }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 }
