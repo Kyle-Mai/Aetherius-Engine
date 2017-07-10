@@ -28,6 +28,12 @@ public class HealthCalculator {
 
     public HealthCalculator() {}
 
+    public HealthCalculator(int hpmax, int shieldmax, int armourmax) {
+        health_total = hpmax;
+        shields_total = shieldmax;
+        armour_total = armourmax;
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      Accessible methods.
      Methods that can be accessed from outside of the class
@@ -62,13 +68,22 @@ public class HealthCalculator {
     public boolean isArmourRegen() { return armour_regen; }
 
     public void regen_health() { regen_health(1.0); }
-    public void regen_health(double multiplier) { health += ((health_total / 100) * h_recovery) * multiplier; }
+    public void regen_health(double multiplier) {
+        health += ((health_total / 100) * h_recovery) * multiplier;
+        health = Math.min(health, health_total);
+    }
 
     public void regen_shields() { regen_shields(1.0); }
-    public void regen_shields(double multiplier) { shields += ((shields_total / 100) * s_recovery) * multiplier; }
+    public void regen_shields(double multiplier) {
+        shields += ((shields_total / 100) * s_recovery) * multiplier;
+        shields = Math.min(shields, shields_total);
+    }
 
     public void regen_armour() { regen_armour(1.0); }
-    public void regen_armour(double multiplier) { armour += ((armour_total / 100) * a_recovery) * multiplier; }
+    public void regen_armour(double multiplier) {
+        armour += ((armour_total / 100) * a_recovery) * multiplier;
+        armour = Math.min(armour, armour_total);
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 

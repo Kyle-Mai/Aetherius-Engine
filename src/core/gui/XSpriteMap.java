@@ -23,6 +23,7 @@ public class XSpriteMap implements XSpriteConstants {
     private int currentSprite = 0; //Index that will be called when getCurrentSprite() is called - can be used for animation maps
     private BufferedImage source; //Source image used to create the sprites
     private ArrayList<BufferedImage> sprites = new ArrayList<>(); //ArrayList of the sprites created from the source image
+    private boolean dumpingSource = false;
 
     private String spriteName; //Identifiers used to identify the sprite map, unnecessary
     private int ID;
@@ -67,6 +68,9 @@ public class XSpriteMap implements XSpriteConstants {
     public BufferedImage getSprite(BufferedImage b) { return sprites.get(sprites.indexOf(b)); } //returns the equivalent sprite from the sprite map
     public int getIndexOf(BufferedImage b) { return sprites.indexOf(b); } //gets the index of the specified sprite
     public int getSpriteCount() { return sprites.size(); } //returns the number of sprites in the sprite map
+    public void clearSource() { source = null; } //just for when you want the source to be removed for whatever reason
+    public boolean isDumpingSource() { return dumpingSource; }
+    public void setDumpSource(boolean b) { dumpingSource = b; }
 
     public void setSource(BufferedImage s) { source = s; } //Sets the source image used to create sprites.
     public void setCurrentIndex(int i) { currentSprite = i; } //sets the current indexed sprite that will be called with getCurrentSprite()
@@ -80,19 +84,37 @@ public class XSpriteMap implements XSpriteConstants {
     public void removeSprite(BufferedImage b) { sprites.remove(b); } //removes the sprite that corresponds with the input image
     public void resizeSprite(int i, int x, int y) { sprites.get(i).getScaledInstance(x, y, Image.SCALE_SMOOTH); } //resizes the sprite at the specified index
     public void clear() { sprites.clear(); } //Removes all of the sprites from the sprite map.
+    public boolean spriteMapExists() { return !sprites.isEmpty(); } //whether or not there are any sprites in the map
 
     public void createSprites(boolean custom, int i1, int i2) { //Builds sprites from the source image.
+        if (source == null) throw new NullPointerException();
+        create(source, custom, i1, i2);
+        if (dumpingSource) { source = null; }
+    }
+
+    public void createSprites(BufferedImage img, boolean custom, int i1, int i2) { //Builds sprites from a chosen image
+        if (img == null) throw new NullPointerException();
+        if (!dumpingSource) { source = img; }
+        create(img, custom, i1, i2);
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Core methods.
+     These should NOT be touched or accessed directly.
+     */
+
+    private void create(BufferedImage img, boolean custom, int i1, int i2) {
         int width, height; //Width and height of each sprite.
         int x = 0, y = 0; //The current position index.
-        if (source == null) throw new NullPointerException(); //No source -> cannot create sprites.
+        if (i1 < 1 || i2 < 1) throw new IllegalArgumentException();
 
         if (!custom) { //Preset sprite map, i1 defines the style of sprites (HORIZONTAL_MAP / VERTICAL_MAP), i2 defines the number of sprites on the map
             if (i1 == HORIZONTAL_MAP) { //Creates sprites from a left-right oriented sprite map.
-                height = source.getHeight();
-                width = source.getWidth() / i2;
+                height = img.getHeight();
+                width = img.getWidth() / i2;
                 for (int i = 0; i < i2; i++) {
                     try {
-                        sprites.add(source.getSubimage(x, y, width, height));
+                        sprites.add(img.getSubimage(x, y, width, height));
                     } catch (Exception e) { //If an error occurs while generating the sprite, replace it with a null.
                         System.out.println("Error when generating sprite image: " + e.getMessage());
                         sprites.add(null);
@@ -101,11 +123,11 @@ public class XSpriteMap implements XSpriteConstants {
                 }
                 System.out.println("Sprites created.");
             } else if (i1 == VERTICAL_MAP) { //Creates sprites from a top-down oriented sprite map.
-                height = source.getHeight() / i2;
-                width = source.getWidth();
+                height = img.getHeight() / i2;
+                width = img.getWidth();
                 for (int i = 0; i < i2; i++) {
                     try {
-                        sprites.add(source.getSubimage(x, y, width, height));
+                        sprites.add(img.getSubimage(x, y, width, height));
                     } catch (Exception e) { //If an error occurs while generating the sprite, replace it with a null.
                         System.out.println("Error when generating sprite image: " + e.getMessage());
                         sprites.add(null);
@@ -118,14 +140,14 @@ public class XSpriteMap implements XSpriteConstants {
             }
 
         } else { //Custom sprite map, such as one with multiple rows and columns. i1 defines the number of sprites in the x-coordinate, i2 defines the number of sprites in the y-coordinate.
-            width = source.getWidth() / i1;
-            height = source.getHeight() / i2;
+            width = img.getWidth() / i1;
+            height = img.getHeight() / i2;
 
             for (int i = 0; i < i2; i++) {
                 x = 0;
                 for (int j = 0; j < i1; j++) {
                     try {
-                        sprites.add(source.getSubimage(x, y, width, height));
+                        sprites.add(img.getSubimage(x, y, width, height));
                     } catch (Exception e) { //If an error occurs while generating the sprite, replace it with a null.
                         System.out.println("Error when generating sprite image: " + e.getMessage());
                         sprites.add(null);
