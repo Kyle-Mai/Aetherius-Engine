@@ -100,6 +100,16 @@ public class XButton extends JButton implements XConstants {
         super.setContentAreaFilled(false);
     }
 
+    public void setImage(BufferedImage image) {
+        try {
+            this.setIcon(new ImageIcon(image));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        this.setBorder(null);
+        this.setOpaque(true);
+    }
+
     public void scaleImage(BufferedImage image, int scale) { //Scale the image up to either the size of the button or triple that.
         if (scale == SCALE_TRIPLE) {
             Image scaledImage = image.getScaledInstance(this.getWidth() * 3, this.getHeight(), Image.SCALE_SMOOTH);
