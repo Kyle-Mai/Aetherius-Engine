@@ -9,7 +9,7 @@ Extends the JScrollPane class and adds new constructors/methods.
 
 import javax.swing.*;
 
-public class XScrollPane extends JScrollPane {
+public class XScrollPane extends JScrollPane implements XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -34,8 +34,8 @@ public class XScrollPane extends JScrollPane {
      */
 
     public void refresh() { //Refreshes the XFrame's GFX.
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class XFrame extends JFrame {
+public class XFrame extends JFrame implements XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -62,8 +62,8 @@ public class XFrame extends JFrame {
     }
 
     public void refresh() { //Refreshes the XFrame's GFX.
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ import java.awt.*;
  Extends the JScrollBar and allows for more freedom of manipulation.
  */
 
-public class XScrollBar extends JScrollBar {
+public class XScrollBar extends JScrollBar implements XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -25,6 +25,16 @@ public class XScrollBar extends JScrollBar {
         setBorder(null);
         setOpaque(true);
         setUI(new XScrollBarUI(fore, back));
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the XPanel's characteristics.
+     */
+
+    public void refresh() {
+        revalidate();
+        repaint();
     }
 
     //------------------------------------------------------------------------------------------------------------------

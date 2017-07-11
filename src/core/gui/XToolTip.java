@@ -11,7 +11,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
-public class XToolTip extends JToolTip {
+public class XToolTip extends JToolTip implements XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -23,6 +23,16 @@ public class XToolTip extends JToolTip {
         this.setFont(font);
         this.setBorder(border);
         this.setBackground(background);
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Accessible methods.
+     Can be accessed to edit the Text Image's characteristics.
+     */
+
+    public void refresh() {
+        repaint();
+        revalidate();
     }
 
     //------------------------------------------------------------------------------------------------------------------

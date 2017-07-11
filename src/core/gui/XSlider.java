@@ -10,7 +10,7 @@ Extends the JSlider with new constructors and variables.
 import javax.swing.*;
 import java.util.Dictionary;
 
-public class XSlider extends JSlider implements XConstants {
+public class XSlider extends JSlider implements XConstants, XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.

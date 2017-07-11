@@ -12,7 +12,7 @@ June 29 2017
 Extends the JButton class with new constructors and methods in order to simplify declarations.
  */
 
-public class XButton extends JButton implements XConstants {
+public class XButton extends JButton implements XConstants, XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
@@ -134,8 +134,8 @@ public class XButton extends JButton implements XConstants {
     public boolean getCurrentState() { return this.state; }
 
     public void refresh() { //Refreshes the GFX.
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     /*------------------------------------------------------------------------------------------------------------------

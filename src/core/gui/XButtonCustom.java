@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class XButtonCustom extends JButton implements XConstants {
+public class XButtonCustom extends JButton implements XConstants, XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
@@ -63,8 +63,8 @@ public class XButtonCustom extends JButton implements XConstants {
     public XLabel getContent() { return this.buttonText; } //Returns the button's text label
 
     public void refresh() { //Refreshes the button's appearance.
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     /*------------------------------------------------------------------------------------------------------------------

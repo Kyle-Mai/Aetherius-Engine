@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class XLabel extends JLabel implements XConstants {
+public class XLabel extends JLabel implements XConstants, XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -112,8 +112,8 @@ public class XLabel extends JLabel implements XConstants {
     }
 
     public void refresh() { //Refreshes the GFX.
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ Extends the JPanel with new methods and constructors for more freedom of manipul
 import javax.swing.*;
 import java.awt.*;
 
-public class XPanel extends JPanel {
+public class XPanel extends JPanel implements XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
@@ -49,8 +49,8 @@ public class XPanel extends JPanel {
     public void setPosValues(int x, int y) { this.posX = x; this.posY = y; }
 
     public void refresh() {
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     /*------------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class XTextImage extends JPanel {
+public class XTextImage extends JPanel implements XElement {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
