@@ -3,16 +3,10 @@ package core.sfx;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import sun.misc.JavaNioAccess;
-import sun.nio.ch.DirectBuffer;
-import sun.nio.ch.Interruptible;
-
-import javax.accessibility.Accessible;
-import javax.accessibility.AccessibleTable;
 import java.io.File;
-import java.io.Flushable;
-import java.util.*;
-import java.util.function.BooleanSupplier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
 /*
 Lolita's Revenge
@@ -33,9 +27,14 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
     private double delay = 0;
     private boolean loop = false;
     private boolean playing = false;
+    private boolean paused = false;
     private boolean shuffle = false;
+    private boolean closeOnComplete = true;
     private MediaPlayer mediaPlayer;
     private ArrayList<File> audioFile = new ArrayList<>();
+
+    private Runnable onComplete;
+
     static { JFXPanel fxPanel = new JFXPanel(); } //needed to play the audio
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -72,24 +71,59 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
     public File getFile(int i) { return audioFile.get(i); } //gets a file from an index
     public int getFileIndex(File f) { return audioFile.indexOf(f); } //gets the index of a file
 
-    public void setVolume(double volume) {mediaPlayer.setVolume(0.01 * volume); } //sets the volume of the audio player
+    public void setShuffle(boolean b) { shuffle = b; } //shuffles the audio
+
+    public void setVolume(double volume) { //sets the volume of the audio player
+        if (volume < 0) {
+            volume = 0;
+        } else if (volume > 100) {
+            volume = 100;
+        }
+        mediaPlayer.setVolume(0.01 * volume);
+    }
+
     public void setDelay(double d) { delay = d; } //sets the delay between initialization and playing
 
     public double getVolume() { return mediaPlayer.getVolume() * 100; } //gets the volume of the audio player
     public double getDuration() { return mediaPlayer.getTotalDuration().toMillis(); } //gets the duration of the current audio
     public double getDelay() { return delay; } //gets the currently selected delay
 
+    public void pause() { //pauses the currently playing audio
+        if (playing) {
+            mediaPlayer.pause();
+            paused = true;
+            playing = false;
+        }
+    }
+
+    public void resume() { //resumes the currently playing audio
+        if (paused) {
+            mediaPlayer.play();
+            playing = true;
+            paused = false;
+        }
+    }
+
+    public void stop() { mediaPlayer.stop(); } //stops the audio
+
     public void loop() { //loops the audio
         audioLoop();
         loop = true;
     }
 
-    public boolean isPlaying() { return playing; }
-    public boolean isLooping() { return loop; } //whether or not the audio is looping
-    public void setShuffle(boolean b) { shuffle = b; } //shuffles the audio
-    public boolean isShuffling() { return shuffle; } //whether or not the audio is being shuffled
+    public void toggleMute() { mediaPlayer.setMute(!mediaPlayer.isMute()); }
 
-    public void stopAudio() { mediaPlayer.stop(); } //stops the audio
+    public boolean isPlaying() { return playing; } //whether or not there's any audio playing
+    public boolean isLooping() { return loop; } //whether or not the audio is looping
+    public boolean isPaused() { return paused; } //whether or not the audio is paused
+    public boolean isShuffling() { return shuffle; } //whether or not the audio is being shuffled
+    public boolean isMuted() { return mediaPlayer.isMute(); }
+
+    public void setCloseOnComplete(boolean b) { closeOnComplete = b; } //whether or not the audio thread will clean itself up on closing
+    public boolean isCloseOnComplete() { return closeOnComplete; }
+
+    public void setOnComplete(Runnable r) { onComplete = r; }
+    public Runnable getOnComplete() { return onComplete; }
 
     @Override
     public void run() { //plays the audio
@@ -110,7 +144,14 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
             throw new IllegalArgumentException("Unexpected Error - Audio initialization was incorrect.");
         }
 
-        Thread.currentThread().interrupt(); //closes the thread down
+        if (onComplete != null) { onComplete.run(); } //if a runnable was set to trigger on the completion of the audio player's queue, run it
+
+        if (closeOnComplete) {
+            mediaPlayer.dispose();
+            clear();
+            audioFile.clear();
+            Thread.currentThread().interrupt(); //closes the thread down
+        }
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -122,8 +163,9 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
         mediaPlayer.setOnEndOfMedia(new Runnable() {
             @Override
             public void run() {
-                System.out.println("Audio ended.");
+                System.out.println("Audio finished playing.");
                 playing = false;
+                paused = false;
                 Thread.currentThread().interrupt();
             }
         });
@@ -145,15 +187,21 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
 
     private void loadAudio(Media media) { //loads the audio into the media player and plays it after the delay (if one was set)
         mediaPlayer = new MediaPlayer(media);
-        try {
-            Thread.sleep((long)delay);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+
+        if (delay > 0) { //delay inputted, pause thread before playing audio
+            try {
+                Thread.sleep((long)delay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        } else if (delay < 0) { //negative delay inputted -- is this a mistake?
+            throw new IllegalArgumentException("Delay cannot be a negative number.");
         }
+
         mediaPlayer.play();
         playing = true;
 
-        while(playing) {
+        while(playing || paused) { //Pause until the audio finishes playing
             try {
                 Thread.currentThread().sleep(sleepDuration);
             } catch (InterruptedException e) {
