@@ -29,7 +29,17 @@ public class NameList extends ArrayList<String> {
 
     public NameList() {}
 
+    public NameList(String... s) {
+        for (String a : s) { add(a); }
+    }
+
     public NameList(boolean store, boolean dupl) {
+        storeUsed = store;
+        useDuplicates = dupl;
+    }
+
+    public NameList(boolean store, boolean dupl, String... s) {
+        for (String a : s) { add(a); }
         storeUsed = store;
         useDuplicates = dupl;
     }
@@ -46,9 +56,11 @@ public class NameList extends ArrayList<String> {
     public void setStoreUsed(boolean b) { storeUsed = b; }
 
     public void add(String... s) {
-        for (int i = 0; i < s.length; i++) { add(s[i]); } //NO IT CAN'T
+        for (String a : s) { add(a); }
     }
 
+    public String getUsed(int i) { return used.get(i); }
+    public int getUsedCount() { return used.size(); }
     public void clearUsed() { used.clear(); }
     public void clearAll() {
         clear();
@@ -62,10 +74,8 @@ public class NameList extends ArrayList<String> {
         }
     }
 
-    public String getUsed(int i) { return used.get(i); }
-
-    public String generate() throws NoSuchElementException { //Gets a name from the name list.
-        if (size() <= 0) throw new NoSuchElementException();
+    public String generate() { //Gets a name from the name list.
+        if (size() <= 0) throw new NoSuchElementException("No strings were found in the NameList. Cannot generate.");
         Random r = new Random();
         int i = r.nextInt(size());
         if (storeUsed) { used.add(get(i)); } //Stores a list of the used strings if applicable.
