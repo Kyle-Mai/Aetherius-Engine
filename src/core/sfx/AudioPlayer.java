@@ -3,7 +3,7 @@ package core.sfx;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -31,7 +31,8 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
     private boolean shuffle = false;
     private boolean closeOnComplete = true;
     private MediaPlayer mediaPlayer;
-    private ArrayList<File> audioFile = new ArrayList<>();
+    private double volume = 100;
+    private ArrayList<URL> audioFile = new ArrayList<>();
 
     private Runnable onComplete;
 
@@ -44,14 +45,14 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
 
     public AudioPlayer() {}
 
-    public AudioPlayer(File a) { audioFile.add(a); }
+    public AudioPlayer(URL a) { audioFile.add(a); }
 
-    public AudioPlayer(File a, double v) {
+    public AudioPlayer(URL a, double v) {
         audioFile.add(a);
         setVolume(v);
     }
 
-    public AudioPlayer(File a, double v, double d) {
+    public AudioPlayer(URL a, double v, double d) {
         audioFile.add(a);
         setVolume(v);
         delay = d;
@@ -62,24 +63,29 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
      Can be accessed outside of the SFX player to edit values.
      */
 
-    public void addFile(File... file) { audioFile.addAll(Arrays.asList(file)); } //adds a new audio file to the sfx player
-    public void removeFile(File f) { audioFile.remove(f); } //removes a file
+    public void addFile(URL... file) { audioFile.addAll(Arrays.asList(file)); } //adds a new audio file to the sfx player
+    public void removeFile(URL f) { audioFile.remove(f); } //removes a file
     public void removeFile(int i) { audioFile.remove(i); } //removes a file from the selected index
     public void dumpFiles() { audioFile.clear(); }
 
-    public File getFile(File f) { return audioFile.get(audioFile.indexOf(f)); } //gets a file
-    public File getFile(int i) { return audioFile.get(i); } //gets a file from an index
-    public int getFileIndex(File f) { return audioFile.indexOf(f); } //gets the index of a file
+    public URL getFile(URL f) { return audioFile.get(audioFile.indexOf(f)); } //gets a file
+    public URL getFile(int i) { return audioFile.get(i); } //gets a file from an index
+    public int getFileIndex(URL f) { return audioFile.indexOf(f); } //gets the index of a file
 
     public void setShuffle(boolean b) { shuffle = b; } //shuffles the audio
 
-    public void setVolume(double volume) { //sets the volume of the audio player
-        if (volume < 0) {
+    public void setVolume(double vol) { //sets the volume of the audio player
+        if (vol < 0) {
             volume = 0;
-        } else if (volume > 100) {
+        } else if (vol > 100) {
             volume = 100;
+        } else {
+            volume = vol;
         }
-        mediaPlayer.setVolume(0.01 * volume);
+
+        if (mediaPlayer != null) { //only attempt to alter the media player if one is initialized
+            mediaPlayer.setVolume(0.01 * volume);
+        }
     }
 
     public void setDelay(double d) { delay = d; } //sets the delay between initialization and playing
@@ -107,7 +113,6 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
     public void stop() { mediaPlayer.stop(); } //stops the audio
 
     public void loop() { //loops the audio
-        audioLoop();
         loop = true;
     }
 
@@ -130,9 +135,6 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
         if (playing) throw new RuntimeException("Invalid operation - Audio thread was accessed during execution."); //Safety net.
 
         initializeData();
-        mediaPlayerSetup();
-
-        if (loop && !shuffle && size() <= 1) { audioLoop(); }
 
         if (size() == 1) {
             loadAudio(get(0));
@@ -166,7 +168,9 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
                 System.out.println("Audio finished playing.");
                 playing = false;
                 paused = false;
-                Thread.currentThread().interrupt();
+                if (!loop && !shuffle) {
+                    Thread.currentThread().interrupt();
+                }
             }
         });
     }
@@ -187,6 +191,7 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
 
     private void loadAudio(Media media) { //loads the audio into the media player and plays it after the delay (if one was set)
         mediaPlayer = new MediaPlayer(media);
+        mediaPlayerSetup();
 
         if (delay > 0) { //delay inputted, pause thread before playing audio
             try {
@@ -198,6 +203,9 @@ public class AudioPlayer extends ArrayList<Media> implements Runnable {
             throw new IllegalArgumentException("Delay cannot be a negative number.");
         }
 
+        if (loop && !shuffle && size() <= 1) { audioLoop(); }
+
+        mediaPlayer.setVolume(0.01 * volume);
         mediaPlayer.play();
         playing = true;
 
