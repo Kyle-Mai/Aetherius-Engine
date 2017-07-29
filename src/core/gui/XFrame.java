@@ -18,6 +18,19 @@ public class XFrame extends JFrame implements XElement {
      Used to construct instances of the XFrame.
      */
 
+    public XFrame() {
+        this.setUndecorated(true);
+        this.setResizable(false);
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    }
+
+    public XFrame(String text) {
+        this.setUndecorated(true);
+        this.setResizable(false);
+        this.setTitle(text); //sets the name of the program
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    }
+
     public XFrame(String text, BufferedImage icon) {
         this.setUndecorated(true);
         this.setResizable(false);
@@ -64,6 +77,13 @@ public class XFrame extends JFrame implements XElement {
     public void refresh() { //Refreshes the XFrame's GFX.
         revalidate();
         repaint();
+    }
+
+    public Dimension getScreenSize() { return Toolkit.getDefaultToolkit().getScreenSize(); }
+
+    public void centerOnScreen() {
+        if (getWidth() == 0 || getHeight() == 0) throw new NullPointerException("Frame was not correctly sized before the operation was requested.");
+        setLocation((getScreenSize().width / 2) - (getWidth() / 2), (getScreenSize().height / 2) - (getHeight() / 2));
     }
 
     //------------------------------------------------------------------------------------------------------------------

@@ -96,7 +96,7 @@ public class XListSorter implements XConstants {
     public int getItemIndex(JComponent component) { return list.indexOf(component); } //returns the index of an item in the list
 
     /*------------------------------------------------------------------------------------------------------------------
-     Main methodology.
+     MainInterface methodology.
      */
 
     public void placeItems(JComponent c) { //Adds the components to the specified component
