@@ -158,7 +158,11 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         }
     }
 
-    public void stop() { mediaPlayer.stop(); } //stops the audio
+    public void stop() { //stops the audio
+        mediaPlayer.stop();
+        playing = false;
+        paused = false;
+    }
 
     public void loop() { //loops the audio
         loop = true;
@@ -213,6 +217,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
             mediaPlayer.stop();
             mediaPlayer.dispose();
         }
+        stop();
         audioThread.interrupt();
         System.out.println("AudioPlayer successfully disposed.");
     }
@@ -233,6 +238,8 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
             shuffleAudio();
         } else if (size() > 1 && !shuffle && !loop) {
             playList();
+        } else if (size() < 1) {
+            throw new NullPointerException("Unexpected Error - No audio was initialized.");
         } else {
             throw new IllegalArgumentException("Unexpected Error - Audio initialization was incorrect.");
         }
@@ -317,8 +324,8 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
             try {
                 Thread.currentThread().sleep(sleepDuration);
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
+                System.out.println("Audio player interrupted during playing.");
+                stop();
             }
         }
 
