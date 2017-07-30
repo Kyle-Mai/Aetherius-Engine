@@ -5,6 +5,9 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
@@ -38,6 +41,8 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     private Thread audioThread; //thread being used to play the audio
     private JFXPanel fxPanel; //the FX panel, probably shouldn't be touched but w/e
 
+    private File audioFolder;
+
     private Runnable onComplete;
     private Runnable onAudioEnd;
 
@@ -47,10 +52,8 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
      */
 
     public AudioPlayer() {}
-
-    public AudioPlayer(URL a) {
-        audioFile.add(a);
-    }
+    public AudioPlayer(File directory) { audioFolder = directory; }
+    public AudioPlayer(URL a) { audioFile.add(a); }
 
     public AudioPlayer(URL a, double v) {
         audioFile.add(a);
@@ -67,6 +70,28 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
      Accessible methods.
      Can be accessed outside of the SFX player to edit values.
      */
+
+    public void setAudioFolder(File folder) { audioFolder = folder; }
+    public File getAudioFolder() { return audioFolder; }
+
+    public void addAudioFromFolder(String audio) {
+        if (audioFolder == null) throw new NullPointerException("Audio folder directory was not initialized.");
+        try {
+            File temp = new File(audioFolder + "/" + audio);
+            audioFile.add(temp.toURI().toURL());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public URL getURLFromFile(File req) { //gets the URL of a file
+        try {
+            return req.toURI().toURL();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public void addFile(URL f) { audioFile.add(f); } //adds a new audio file
     public void addFile(URL f, int i) { audioFile.add(i, f); } //adds the file to the set index
@@ -180,6 +205,17 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
 
     public double getBalance() { return mediaPlayer.getBalance(); }
     public void setBalance(double d) { mediaPlayer.setBalance(d); }
+
+    public void dispose() { //attempts to clear and shut down the audio player.
+        audioFile.clear();
+        clear();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.dispose();
+        }
+        audioThread.interrupt();
+        System.out.println("AudioPlayer successfully disposed.");
+    }
 
     @Override
     public void run() { //plays the audio
