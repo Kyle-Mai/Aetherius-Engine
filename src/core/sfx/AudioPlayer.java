@@ -217,42 +217,54 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
             mediaPlayer.stop();
             mediaPlayer.dispose();
         }
+        fxPanel = null;
         stop();
         audioThread.interrupt();
-        System.out.println("AudioPlayer successfully disposed.");
     }
 
     @Override
     public void run() { //plays the audio
-        if (playing || paused) throw new RuntimeException("Invalid operation - Audio thread was accessed during execution."); //Safety net.
+        while (!Thread.interrupted()) {
+            try {
+                if (playing || paused)
+                    throw new RuntimeException("Invalid operation - Audio thread was accessed during execution."); //Safety net.
 
-        loadFXPanel();
+                loadFXPanel();
 
-        initializeData();
+                initializeData();
 
-        audioThread = Thread.currentThread(); // D A N G E R O U S
+                audioThread = Thread.currentThread(); // D A N G E R O U S
 
-        if (size() == 1) {
-            loadAudio(getFirst());
-        } else if (size() > 1 && shuffle) {
-            shuffleAudio();
-        } else if (size() > 1 && !shuffle && !loop) {
-            playList();
-        } else if (size() < 1) {
-            throw new NullPointerException("Unexpected Error - No audio was initialized.");
-        } else {
-            throw new IllegalArgumentException("Unexpected Error - Audio initialization was incorrect.");
-        }
+                if (size() == 1) {
+                    loadAudio(getFirst());
+                } else if (size() > 1 && shuffle) {
+                    shuffleAudio();
+                } else if (size() > 1 && !shuffle && !loop) {
+                    playList();
+                } else if (size() < 1) {
+                    throw new NullPointerException("Unexpected Error - No audio was initialized.");
+                } else {
+                    throw new IllegalArgumentException("Unexpected Error - Audio initialization was incorrect.");
+                }
 
-        if (onComplete != null) { onComplete.run(); } //if a runnable was set to trigger on the completion of the audio player's queue, run it
+                if (onComplete != null) {
+                    onComplete.run();
+                } //if a runnable was set to trigger on the completion of the audio player's queue, run it
 
-        if (closeOnComplete) {
-            clear();
-            if (!retainingFiles) {
-                audioFile.clear();
+                if (closeOnComplete) {
+                    clear();
+                    if (!retainingFiles) {
+                        audioFile.clear();
+                    }
+                    Thread.currentThread().interrupt(); //closes the thread down
+                }
+            } catch (InterruptedException e) {
+                break; //exit the loop to close the thread
             }
-            Thread.currentThread().interrupt(); //closes the thread down
         }
+        stop();
+        System.out.println("Audio thread completed operation.");
+        Thread.currentThread().interrupt();
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -300,16 +312,12 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         }
     }
 
-    private void loadAudio(Media media) { //loads the audio into the media player and plays it after the delay (if one was set)
+    private void loadAudio(Media media) throws InterruptedException { //loads the audio into the media player and plays it after the delay (if one was set)
         mediaPlayer = new MediaPlayer(media);
         mediaPlayerSetup();
 
         if (delay > 0) { //delay inputted, pause thread before playing audio
-            try {
-                Thread.sleep((long)delay);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            Thread.sleep((long)delay);
         } else if (delay < 0) { //negative delay inputted -- is this a mistake?
             throw new IllegalArgumentException("Delay cannot be a negative number.");
         }
@@ -321,12 +329,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         playing = true;
 
         while(playing || paused) { //Pause until the audio finishes playing
-            try {
-                Thread.currentThread().sleep(sleepDuration);
-            } catch (InterruptedException e) {
-                System.out.println("Audio player interrupted during playing.");
-                stop();
-            }
+            Thread.sleep(sleepDuration);
         }
 
         if (optimizingMemory) {
@@ -334,7 +337,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         }
     }
 
-    private void shuffleAudio() { //selects a random audio from the list and plays it, looping when applicable
+    private void shuffleAudio() throws InterruptedException { //selects a random audio from the list and plays it, looping when applicable
         Random shuffler = new Random();
         loadAudio(get(shuffler.nextInt(size() - 1)));
         if (loop) { //if the program is set to loop, choose another audio file after the current one finishes playing
@@ -342,7 +345,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         }
     }
 
-    private void playList() { //plays the audio in order
+    private void playList() throws InterruptedException { //plays the audio in order
         for (int i = 0; i < size(); i++) {
             loadAudio(get(i));
         }
