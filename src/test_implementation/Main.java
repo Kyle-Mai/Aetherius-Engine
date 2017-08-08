@@ -2,10 +2,12 @@ package test_implementation;
 
 import core.run.EventRunner;
 import core.run.ScheduledEvent;
+import core.sfx.AudioPlayer;
 import test_implementation.gui.MainInterface;
 import test_implementation.sfx.AudioLoader;
 
 import java.awt.*;
+import java.io.File;
 import java.util.Random;
 
 public class Main {
@@ -15,6 +17,11 @@ public class Main {
     private static AudioLoader test;
 
     public static void main(String[] args) {
+
+        long starttime;
+        long endtime;
+
+        starttime = System.currentTimeMillis();
 
         ui = new MainInterface();
         test = new AudioLoader();
@@ -39,7 +46,7 @@ public class Main {
             }
         });
 
-        event.addEvent(100, new ScheduledEvent() {
+        event.addEvent(100, new ScheduledEvent(false, true) {
             boolean greyscale = false;
 
             @Override
@@ -85,7 +92,7 @@ public class Main {
             }
         });
 
-        event.addEvent(1, new ScheduledEvent() {
+        event.addEvent(1, new ScheduledEvent(false, true) {
             int counter2 = 0;
             int counter = 0;
             Random lol = new Random();
@@ -134,9 +141,47 @@ public class Main {
             }
         });
 
-        event.run();
+        event.addEvent(100, new ScheduledEvent() {
+            boolean sw = false;
+            @Override
+            public void runEvent() {
+                AudioPlayer test2 = new AudioPlayer();
+                test2.setAudioFolder(new File(System.getProperty("user.dir") + "/src/test_implementation/sfx/resources/"));
+                test2.addAudioFromFolder("surprise.mp3");
+                test2.setCloseOnComplete(true);
+                test2.setVolume(10);
+                new Thread(test2).start();
+            }
 
-        System.out.println("Test complete.");
+            @Override
+            public boolean triggerConditions() {
+                return true;
+            }
+        });
+
+        ScheduledEvent leeroy = new ScheduledEvent(true, false) {
+            @Override
+            public boolean triggerConditions() {
+                return true;
+            }
+
+            @Override
+            public void runEvent() {
+                AudioPlayer test3 = new AudioPlayer();
+                test3.setAudioFolder(new File(System.getProperty("user.dir") + "/src/test_implementation/sfx/resources/"));
+                test3.addAudioFromFolder("leeroy.mp3");
+                test3.setCloseOnComplete(true);
+                test3.setVolume(8);
+                new Thread(test3).start();
+            }
+        };
+        leeroy.setRemovedOnTriggered(true);
+        event.addEvent(10, leeroy);
+
+        new Thread(event).start();
+
+        endtime = System.currentTimeMillis();
+        System.out.println("Test finished loading. || Duration - " + (endtime - starttime) + "ms");
 
     }
 

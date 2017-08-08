@@ -267,7 +267,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
             }
         }
         stop();
-        System.out.println("Audio thread completed operation.");
+        //System.out.println("Audio thread completed operation.");
         Thread.currentThread().interrupt();
     }
 
@@ -282,7 +282,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         mediaPlayer.setOnEndOfMedia(new Runnable() {
             @Override
             public void run() {
-                System.out.println("Audio finished playing.");
+                //System.out.println("Audio finished playing.");
                 playing = false;
                 paused = false;
 

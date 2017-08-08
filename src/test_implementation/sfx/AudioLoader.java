@@ -16,7 +16,7 @@ public class AudioLoader {
 
     public AudioLoader() {
         audioMain = new AudioPlayer();
-        audioMain.setVolume(3); //sets the volume to 3 (computer is stupidly loud lol)
+        audioMain.setVolume(4); //sets the volume to 3 (computer is stupidly loud lol)
     }
 
     //this test demonstrates setting and loading audio from a designated folder used as a resource directory

@@ -91,6 +91,8 @@ public final class EventRunner implements Runnable {
      */
 
     private void eventCycle() throws InterruptedException {
+        //long cyclestart, cycleend;
+
         while (!isInterrupted) {
             if (!isPaused) {
                 switch ((int) currentTick) {
@@ -100,6 +102,8 @@ public final class EventRunner implements Runnable {
                     default:
                         currentTick++;
                 }
+
+                //cyclestart = System.currentTimeMillis();
 
                 checkEventConditions(events_one);
                 if (currentTick % 10 == 0 && currentTick != 0) {
@@ -112,6 +116,9 @@ public final class EventRunner implements Runnable {
                     checkEventConditions(events_thousand);
                 }
                 checkEventConditions(events_other);
+
+                //cycleend = System.currentTimeMillis();
+               // System.out.println("Cycle completed in " + (cycleend - cyclestart) + "ms");
 
                 // pauses the thread for the duration of the tick
                 try {
@@ -139,16 +146,24 @@ public final class EventRunner implements Runnable {
     }
 
     private void checkEventConditions(ArrayList<ScheduledEvent> events) { //checks and runs events
+        ArrayList<ScheduledEvent> removed = new ArrayList<>();
         try {
             if (events.size() > 0) {
                 for (ScheduledEvent e : events) { //check the event roster
                     if (e.triggerConditionsMet()) {
                         //conditions met, run the event
-                        new Thread(e).start();
-                        //e.runEvent();
+
+                        if (e.isThreaded()) {
+                            //event is to be given its own private thread (harder on CPU, faster)
+                            new Thread(e).start();
+                        } else {
+                            //run event in main EventRunner thread (better on CPU, slower)
+                            e.runEvent();
+                        }
+
                         if (e.isRemovedOnTriggered()) {
                             //if the event is set to be removed once it has been triggered, remove it from the queue
-                            events.remove(e);
+                            removed.add(e);
                         }
                     }
                 }
@@ -157,6 +172,11 @@ public final class EventRunner implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        if (removed.size() > 0) {
+            events.removeAll(removed);
+        }
+        removed.clear();
     }
 
     //------------------------------------------------------------------------------------------------------------------
