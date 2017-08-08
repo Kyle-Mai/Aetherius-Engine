@@ -8,9 +8,11 @@ package core.run;
 
 public abstract class ScheduledEvent {
 
+    public ScheduledEvent() {}
+
     private boolean removedOnTriggered = false; //Whether or not the event will be removed after it has been triggered.
-    abstract boolean triggerConditions(); //The conditions that must be met for the event to trigger.
-    abstract void runEvent(); //The event's actions
+    public abstract boolean triggerConditions(); //The conditions that must be met for the event to trigger.
+    public abstract void runEvent(); //The event's actions
     public final boolean triggerConditionsMet() { return triggerConditions(); }
 
     public final void setRemovedOnTriggered(boolean b) { removedOnTriggered = b;}

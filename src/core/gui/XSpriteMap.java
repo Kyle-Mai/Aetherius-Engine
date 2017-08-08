@@ -68,6 +68,12 @@ public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConst
     public void setCurrentIndex(int i) { currentSprite = i; } //sets the current indexed sprite that will be called with getCurrentSprite()
     public void setID(int i) { ID = i; } //sets the sprite map's ID - purely used to identify the sprite map in arrays and whatnot
     public void setSpriteName(String s) { spriteName = s; } //sets the sprite map's name - purely used to identify the sprite map in arrays and whatnot
+    public void indexNextSprite() {
+        currentSprite++;
+        if (currentSprite > size() - 1) {
+            currentSprite = 0;
+        }
+    }
 
     public void resizeSprite(int i, int x, int y) { get(i).getScaledInstance(x, y, Image.SCALE_SMOOTH); } //resizes the sprite at the specified index
 

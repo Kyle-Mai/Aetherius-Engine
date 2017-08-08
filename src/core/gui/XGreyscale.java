@@ -9,6 +9,8 @@ Takes a BufferedImage and converts it to a grey-scaled instance of itself.
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 
@@ -45,7 +47,12 @@ public class XGreyscale {
 
     public void convertImage() {
         if (source == null) throw new NullPointerException();
-        greyscaledImage = source;
+
+        //copies the source image, rather than utilizing the source itself rendering it unusable
+        ColorModel model = source.getColorModel();
+        WritableRaster raster = source.copyData(null);
+        greyscaledImage = new BufferedImage(model, raster, model.isAlphaPremultiplied(), null);
+
         for (int i = 0; i < greyscaledImage.getWidth(); i++) {
             for (int j = 0; j < greyscaledImage.getHeight(); j++) {
                 int p = greyscaledImage.getRGB(i,j);

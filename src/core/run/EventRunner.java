@@ -66,6 +66,25 @@ public final class EventRunner implements Runnable {
         //EventRunner finished all processes!
     }
 
+    public void addEvent(int frequency, ScheduledEvent event) {
+        switch (frequency) {
+            case 1:
+                events_one.add(event);
+                break;
+            case 10:
+                events_ten.add(event);
+                break;
+            case 100:
+                events_hundred.add(event);
+                break;
+            case 1000:
+                events_thousand.add(event);
+                break;
+            default:
+                events_other.add(event);
+        }
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      Core methods.
      Methods used by the EventRunner after run() has been called. These should NOT be touched or accessed individually.

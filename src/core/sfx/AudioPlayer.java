@@ -34,11 +34,13 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     private boolean closeOnComplete = true;
     private boolean optimizingMemory = true; //whether or not the audio player will clear unnecessary data after using it to try and preserve memory (in theory), can be disabled if the audio will be reused
     private boolean retainingFiles = false;
+    private boolean avoidRepeat = false; //whether or not the audio player will avoid repeating the same audio file when shuffling
     private MediaPlayer mediaPlayer;
     private double volume = 100;
     private LinkedList<URL> audioFile = new LinkedList<>();
     private Thread audioThread; //thread being used to play the audio
     private JFXPanel fxPanel; //the FX panel, probably shouldn't be touched but w/e
+    private int lastPlayed;
 
     private File audioFolder;
 
@@ -209,6 +211,9 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     public double getBalance() { return mediaPlayer.getBalance(); }
     public void setBalance(double d) { mediaPlayer.setBalance(d); }
 
+    public boolean isAvoidRepeat() { return avoidRepeat; }
+    public void setAvoidRepeat(boolean b) { avoidRepeat = b; }
+
     public void dispose() { //attempts to clear and shut down the audio player.
         audioFile.clear();
         clear();
@@ -337,8 +342,22 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     }
 
     private void shuffleAudio() throws InterruptedException { //selects a random audio from the list and plays it, looping when applicable
+        int newAudio;
+        int counter = 0;
         Random shuffler = new Random();
-        loadAudio(get(shuffler.nextInt(size() - 1)));
+        newAudio = shuffler.nextInt(size());
+        if (avoidRepeat) {
+            while (true) {
+                if (newAudio != lastPlayed || counter > 6) { //retry 6 times for a different audio, otherwise abort the process and just repeat anyways
+                    break;
+                } else {
+                    newAudio = shuffler.nextInt(size());
+                }
+                counter++;
+            }
+        }
+        lastPlayed = newAudio;
+        loadAudio(get(newAudio));
         if (loop) { //if the program is set to loop, choose another audio file after the current one finishes playing
             shuffleAudio();
         }

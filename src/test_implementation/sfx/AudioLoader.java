@@ -32,6 +32,20 @@ public class AudioLoader {
         audioMain.setCloseOnComplete(true);
     }
 
+    public void loadMultipleAudioTestOne() {
+        audioMain.setAudioFolder(new File(System.getProperty("user.dir") + "/src/test_implementation/sfx/resources/"));
+        audioMain.addFile(getClass().getResource("resources/clownpiece.mp3"));
+        audioMain.addAudioFromFolder("gravity.mp3");
+        audioMain.addAudioFromFolder("database.mp3");
+        audioMain.addFile(getClass().getResource("resources/1942.mp3"));
+        audioMain.addAudioFromFolder("plutia.mp3");
+        audioMain.addFile(getClass().getResource("resources/coolest.mp3"));
+        audioMain.setShuffle(true);
+        audioMain.setAvoidRepeat(true);
+        audioMain.loop();
+        audioMain.setCloseOnComplete(false);
+    }
+
     //opens up the audio thread and plays the audio
     public void playAudio() {
         new Thread(audioMain).start(); //opens up a new thread and plays the audio
@@ -55,5 +69,7 @@ public class AudioLoader {
         audioMain.getAudioThread().interrupt();
         System.out.println("Audio thread interrupted!");
     }
+
+    public AudioPlayer getAudioMain() { return audioMain; }
 
 }
