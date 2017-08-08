@@ -10,14 +10,6 @@ public class Main {
         test.loadAudioTestTwo();
         test.playAudio();
 
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        test.interruptAudioTestThree();
-
     }
 
 
