@@ -66,7 +66,7 @@ public final class EventRunner implements Runnable {
         //EventRunner finished all processes!
     }
 
-    public void addEvent(int frequency, ScheduledEvent event) {
+    public void addEvent(int frequency, ScheduledEvent event) { //TODO: Make less shite.
         switch (frequency) {
             case 1:
                 events_one.add(event);
@@ -144,7 +144,8 @@ public final class EventRunner implements Runnable {
                 for (ScheduledEvent e : events) { //check the event roster
                     if (e.triggerConditionsMet()) {
                         //conditions met, run the event
-                        e.runEvent();
+                        new Thread(e).start();
+                        //e.runEvent();
                         if (e.isRemovedOnTriggered()) {
                             //if the event is set to be removed once it has been triggered, remove it from the queue
                             events.remove(e);

@@ -6,7 +6,7 @@ package core.run;
  * Schedules events for the EventRunner.
  */
 
-public abstract class ScheduledEvent {
+public abstract class ScheduledEvent implements Runnable {
 
     public ScheduledEvent() {}
 
@@ -17,5 +17,11 @@ public abstract class ScheduledEvent {
 
     public final void setRemovedOnTriggered(boolean b) { removedOnTriggered = b;}
     public final boolean isRemovedOnTriggered() { return removedOnTriggered; }
+
+    @Override
+    public void run() {
+        runEvent();
+        Thread.currentThread().interrupt();
+    }
 
 }
