@@ -48,7 +48,8 @@ public class AudioLoader {
 
     //opens up the audio thread and plays the audio
     public void playAudio() {
-        new Thread(audioMain).start(); //opens up a new thread and plays the audio
+        audioMain.execute();
+        //opens up a new thread and plays the audio
     }
 
     //this test demonstrates killing an audio thread during playing by using the dispose() method
@@ -61,13 +62,6 @@ public class AudioLoader {
     //thread is left open and active
     public void interruptAudioTestTwo() {
         audioMain.stop();
-    }
-
-    //this test demonstrates killing an audio thread by accessing the audio player's thread and interrupting it from there
-    //kills the audio thread, audio thread's information is left intact and it can easily be restarted using start() again
-    public void interruptAudioTestThree() {
-        audioMain.getAudioThread().interrupt();
-        System.out.println("Audio thread interrupted!");
     }
 
     public AudioPlayer getAudioMain() { return audioMain; }

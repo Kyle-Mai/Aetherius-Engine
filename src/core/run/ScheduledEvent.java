@@ -38,7 +38,6 @@ public abstract class ScheduledEvent implements Runnable {
     public void run() {
         Thread.currentThread().setName("Scheduled Event no." + threadcount.getAndIncrement());
         runEvent();
-        Thread.currentThread().interrupt();
     }
 
 }

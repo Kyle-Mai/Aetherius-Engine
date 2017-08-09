@@ -1,14 +1,15 @@
 package core.run;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Lolita's Revenge
  * August 07 2017
  * Designed to run events on a 'tick' basis, with the ability to schedule different events to run on different ticks.
  */
-
-//TODO: Diagnose memory leak.
 
 public final class EventRunner implements Runnable, EventConstants {
 
@@ -22,6 +23,8 @@ public final class EventRunner implements Runnable, EventConstants {
     private ArrayList<ScheduledEvent> events_hundred = new ArrayList<>();
     private ArrayList<ScheduledEvent> events_thousand = new ArrayList<>();
     private ArrayList<ScheduledEvent> removed = new ArrayList<>();
+
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
 
     private boolean isPaused = false;
     private boolean isInterrupted = false;
@@ -102,6 +105,11 @@ public final class EventRunner implements Runnable, EventConstants {
         }
     }
 
+    public void dispose() {
+        dump(false);
+        threadPool.shutdown();
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      Core methods.
      Methods used by the EventRunner after run() has been called. These should NOT be touched or accessed individually.
@@ -155,6 +163,8 @@ public final class EventRunner implements Runnable, EventConstants {
                 }
             }
             //all actions performed, repeat the process
+
+            System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow
         }
 
         //event runner was interrupted artificially, was this done by an error - or by the user?
@@ -173,7 +183,7 @@ public final class EventRunner implements Runnable, EventConstants {
 
                         if (e.isThreaded()) {
                             //event is to be given its own private thread (harder on CPU, faster)
-                            new Thread(e).start();
+                            threadPool.submit(e);
                         } else {
                             //run event in main EventRunner thread (better on CPU, slower)
                             e.runEvent();

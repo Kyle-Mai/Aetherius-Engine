@@ -9,6 +9,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /*
 Lolita's Revenge
@@ -38,7 +40,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     private MediaPlayer mediaPlayer;
     private double volume = 100;
     private LinkedList<URL> audioFile = new LinkedList<>();
-    private Thread audioThread; //thread being used to play the audio
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
     private JFXPanel fxPanel; //the FX panel, probably shouldn't be touched but w/e
     private int lastPlayed;
 
@@ -187,8 +189,6 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     public void setOnAudioEnd(Runnable r) { onAudioEnd = r; } //runnable that can be called after each individual audio file finishes
     public Runnable getOnAudioEnd() { return onAudioEnd; }
 
-    public Thread getAudioThread() { return audioThread; }
-
     public void setFxPanel(JFXPanel p) { fxPanel = p; }
     public JFXPanel getFxPanel() { return fxPanel; }
 
@@ -214,6 +214,10 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
     public boolean isAvoidRepeat() { return avoidRepeat; }
     public void setAvoidRepeat(boolean b) { avoidRepeat = b; }
 
+    public void execute() {
+        threadPool.submit(this);
+    }
+
     public void dispose() { //attempts to clear and shut down the audio player.
         audioFile.clear();
         clear();
@@ -223,12 +227,11 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         }
         fxPanel = null;
         stop();
-        audioThread.interrupt();
+        threadPool.shutdown();
     }
 
     @Override
     public void run() { //plays the audio
-        Thread.currentThread().setName("AudioPlayer Thread");
         while (!Thread.interrupted()) {
             try {
                 if (playing || paused)
@@ -237,8 +240,6 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
                 loadFXPanel();
 
                 initializeData();
-
-                audioThread = Thread.currentThread(); // D A N G E R O U S
 
                 if (size() == 1) {
                     loadAudio(getFirst());
@@ -269,7 +270,6 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
         }
         stop();
         //System.out.println("Audio thread completed operation.");
-        Thread.currentThread().interrupt();
     }
 
     /*------------------------------------------------------------------------------------------------------------------
