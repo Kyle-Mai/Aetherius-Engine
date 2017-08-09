@@ -8,6 +8,8 @@ import java.util.ArrayList;
  * Designed to run events on a 'tick' basis, with the ability to schedule different events to run on different ticks.
  */
 
+//TODO: Diagnose memory leak.
+
 public final class EventRunner implements Runnable, EventConstants {
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -19,9 +21,11 @@ public final class EventRunner implements Runnable, EventConstants {
     private ArrayList<ScheduledEvent> events_ten = new ArrayList<>();
     private ArrayList<ScheduledEvent> events_hundred = new ArrayList<>();
     private ArrayList<ScheduledEvent> events_thousand = new ArrayList<>();
+    private ArrayList<ScheduledEvent> removed = new ArrayList<>();
 
     private boolean isPaused = false;
     private boolean isInterrupted = false;
+    private boolean isRunning = false;
 
     private long currentCycle = 0; //keeps track of the current cycle
     private long currentTick = 0; //keeps track of the current tick
@@ -48,6 +52,10 @@ public final class EventRunner implements Runnable, EventConstants {
     public long getCurrentTick() { return currentTick; }
 
     public int getCycleDuration() { return cycleDuration; }
+
+    public boolean isRunning() { return isRunning; }
+    public boolean isInterrupted() { return isInterrupted; }
+    public boolean isPaused() { return isPaused; }
 
     public void reset() {
         currentTick = 0;
@@ -82,6 +90,18 @@ public final class EventRunner implements Runnable, EventConstants {
         }
     }
 
+    public void dump(boolean preserveCycle) {
+        events_one.clear();
+        events_ten.clear();
+        events_hundred.clear();
+        events_thousand.clear();
+        removed.clear();
+        if (!preserveCycle) {
+            currentCycle = 0;
+            currentTick = 0;
+        }
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      Core methods.
      Methods used by the EventRunner after run() has been called. These should NOT be touched or accessed individually.
@@ -90,8 +110,9 @@ public final class EventRunner implements Runnable, EventConstants {
     private long cyclestart, cycleend;
 
     private void eventCycle() throws InterruptedException {
+        isRunning = true;
 
-        if (!isInterrupted) {
+        while (!isInterrupted) {
             if (!isPaused) {
                 switch ((int) currentTick) {
                     case cycleDuration:
@@ -134,16 +155,15 @@ public final class EventRunner implements Runnable, EventConstants {
                 }
             }
             //all actions performed, repeat the process
-            eventCycle();
         }
 
         //event runner was interrupted artificially, was this done by an error - or by the user?
+        isRunning = false;
         isInterrupted = false;
         throw new InterruptedException("EventRunner cycle interrupted prematurely -- was this intentional?");
     }
 
     private void checkEventConditions(ArrayList<ScheduledEvent> events) { //checks and runs events
-        ArrayList<ScheduledEvent> removed = new ArrayList<>();
         try {
             if (events.size() > 0) {
                 for (ScheduledEvent e : events) { //check the event roster
@@ -171,10 +191,10 @@ public final class EventRunner implements Runnable, EventConstants {
             e.printStackTrace();
         }
 
-        if (removed.size() > 0) {
+        if (!removed.isEmpty()) {
             events.removeAll(removed);
+            removed.clear();
         }
-        removed.clear();
     }
 
     //------------------------------------------------------------------------------------------------------------------
