@@ -46,6 +46,7 @@ public class Main {
             }
         });
 
+        /*
         event.addEvent(100, new ScheduledEvent(false, true) {
             boolean greyscale = false;
 
@@ -140,24 +141,7 @@ public class Main {
                 return true;
             }
         });
-
-        event.addEvent(100, new ScheduledEvent() {
-            boolean sw = false;
-            @Override
-            public void runEvent() {
-                AudioPlayer test2 = new AudioPlayer();
-                test2.setAudioFolder(new File(System.getProperty("user.dir") + "/src/test_implementation/sfx/resources/"));
-                test2.addAudioFromFolder("surprise.mp3");
-                test2.setCloseOnComplete(true);
-                test2.setVolume(10);
-                new Thread(test2).start();
-            }
-
-            @Override
-            public boolean triggerConditions() {
-                return true;
-            }
-        });
+        */
 
         ScheduledEvent leeroy = new ScheduledEvent(true, false) {
             @Override
@@ -178,7 +162,10 @@ public class Main {
         leeroy.setRemovedOnTriggered(true);
         event.addEvent(10, leeroy);
 
-        new Thread(event).start();
+
+        Thread main = new Thread(event);
+        main.setName("Event Handler Thread");
+        main.start();
 
         endtime = System.currentTimeMillis();
         System.out.println("Test finished loading. || Duration - " + (endtime - starttime) + "ms");

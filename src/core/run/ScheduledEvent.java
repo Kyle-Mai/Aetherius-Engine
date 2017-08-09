@@ -1,5 +1,7 @@
 package core.run;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Lolita's Revenge
  * August 07 2017
@@ -7,6 +9,8 @@ package core.run;
  */
 
 public abstract class ScheduledEvent implements Runnable {
+
+    private static AtomicInteger threadcount = new AtomicInteger(1);
 
     public ScheduledEvent() {
         removedOnTriggered = false;
@@ -32,6 +36,7 @@ public abstract class ScheduledEvent implements Runnable {
 
     @Override
     public void run() {
+        Thread.currentThread().setName("Scheduled Event no." + threadcount.getAndIncrement());
         runEvent();
         Thread.currentThread().interrupt();
     }

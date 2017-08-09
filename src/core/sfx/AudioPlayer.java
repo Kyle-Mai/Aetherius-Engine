@@ -228,6 +228,7 @@ public class AudioPlayer extends LinkedList<Media> implements Runnable {
 
     @Override
     public void run() { //plays the audio
+        Thread.currentThread().setName("AudioPlayer Thread");
         while (!Thread.interrupted()) {
             try {
                 if (playing || paused)

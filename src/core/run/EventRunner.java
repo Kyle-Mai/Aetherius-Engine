@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Designed to run events on a 'tick' basis, with the ability to schedule different events to run on different ticks.
  */
 
-public final class EventRunner implements Runnable {
+public final class EventRunner implements Runnable, EventConstants {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
@@ -19,7 +19,6 @@ public final class EventRunner implements Runnable {
     private ArrayList<ScheduledEvent> events_ten = new ArrayList<>();
     private ArrayList<ScheduledEvent> events_hundred = new ArrayList<>();
     private ArrayList<ScheduledEvent> events_thousand = new ArrayList<>();
-    private ArrayList<ScheduledEvent> events_other = new ArrayList<>();
 
     private boolean isPaused = false;
     private boolean isInterrupted = false;
@@ -68,20 +67,18 @@ public final class EventRunner implements Runnable {
 
     public void addEvent(int frequency, ScheduledEvent event) { //TODO: Make less shite.
         switch (frequency) {
-            case 1:
-                events_one.add(event);
-                break;
-            case 10:
+            case frequency_10: // = 10
                 events_ten.add(event);
                 break;
-            case 100:
+            case frequency_100: // = 100
                 events_hundred.add(event);
                 break;
-            case 1000:
+            case frequency_1000: // = 1000
                 events_thousand.add(event);
                 break;
-            default:
-                events_other.add(event);
+            default: // = 1
+                events_one.add(event);
+            break;
         }
     }
 
@@ -90,20 +87,22 @@ public final class EventRunner implements Runnable {
      Methods used by the EventRunner after run() has been called. These should NOT be touched or accessed individually.
      */
 
-    private void eventCycle() throws InterruptedException {
-        //long cyclestart, cycleend;
+    private long cyclestart, cycleend;
 
-        while (!isInterrupted) {
+    private void eventCycle() throws InterruptedException {
+
+        if (!isInterrupted) {
             if (!isPaused) {
                 switch ((int) currentTick) {
                     case cycleDuration:
                         currentCycle++;
                         currentTick = 0;
+                        System.out.println("Cycle " + currentCycle);
                     default:
                         currentTick++;
                 }
 
-                //cyclestart = System.currentTimeMillis();
+                cyclestart = System.currentTimeMillis();
 
                 checkEventConditions(events_one);
                 if (currentTick % 10 == 0 && currentTick != 0) {
@@ -115,10 +114,9 @@ public final class EventRunner implements Runnable {
                 if (currentTick % 1000 == 0 && currentTick != 0) {
                     checkEventConditions(events_thousand);
                 }
-                checkEventConditions(events_other);
 
-                //cycleend = System.currentTimeMillis();
-               // System.out.println("Cycle completed in " + (cycleend - cyclestart) + "ms");
+                cycleend = System.currentTimeMillis();
+                System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
 
                 // pauses the thread for the duration of the tick
                 try {
@@ -126,8 +124,6 @@ public final class EventRunner implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                eventCycle(); //recursive call to cycle to the next tick
 
             } else {
                 //event runner is paused, keep checking for re-activation every 20ms
@@ -138,6 +134,7 @@ public final class EventRunner implements Runnable {
                 }
             }
             //all actions performed, repeat the process
+            eventCycle();
         }
 
         //event runner was interrupted artificially, was this done by an error - or by the user?
@@ -152,6 +149,7 @@ public final class EventRunner implements Runnable {
                 for (ScheduledEvent e : events) { //check the event roster
                     if (e.triggerConditionsMet()) {
                         //conditions met, run the event
+                        System.out.println("Conditions met for event " + e.toString());
 
                         if (e.isThreaded()) {
                             //event is to be given its own private thread (harder on CPU, faster)
