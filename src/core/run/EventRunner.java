@@ -1,8 +1,6 @@
 package core.run;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -72,7 +70,6 @@ public final class EventRunner implements Runnable, EventConstants {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Thread.currentThread().interrupt();
         //EventRunner finished all processes!
     }
 
@@ -107,7 +104,15 @@ public final class EventRunner implements Runnable, EventConstants {
 
     public void dispose() {
         dump(false);
-        threadPool.shutdown();
+        try {
+            threadPool.shutdown(); //shuts down the threading used by the EventRunner
+            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            System.err.println("Thread pool shutdown interrupted prematurely.");
+        } finally {
+            threadPool.shutdownNow(); //forces the thread pool to shutdown, even if tasks are still running
+        }
+        System.gc(); //prompt garbage collector to clean up any remnants
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -115,7 +120,7 @@ public final class EventRunner implements Runnable, EventConstants {
      Methods used by the EventRunner after run() has been called. These should NOT be touched or accessed individually.
      */
 
-    private long cyclestart, cycleend;
+    //private long cyclestart, cycleend;
 
     private void eventCycle() throws InterruptedException {
         isRunning = true;
@@ -126,12 +131,13 @@ public final class EventRunner implements Runnable, EventConstants {
                     case cycleDuration:
                         currentCycle++;
                         currentTick = 0;
-                        System.out.println("Cycle " + currentCycle);
+                        //System.out.println("Cycle " + currentCycle);
+                        System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
                     default:
                         currentTick++;
                 }
 
-                cyclestart = System.currentTimeMillis();
+                //cyclestart = System.currentTimeMillis();
 
                 checkEventConditions(events_one);
                 if (currentTick % 10 == 0 && currentTick != 0) {
@@ -144,12 +150,13 @@ public final class EventRunner implements Runnable, EventConstants {
                     checkEventConditions(events_thousand);
                 }
 
-                cycleend = System.currentTimeMillis();
-                System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
+                //cycleend = System.currentTimeMillis();
+                //System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
 
                 // pauses the thread for the duration of the tick
                 try {
-                    Thread.sleep((long) (tickDuration * 1000));
+                    //Thread.sleep((long) (tickDuration * 1000));
+                    TimeUnit.SECONDS.sleep((long) tickDuration);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -157,14 +164,14 @@ public final class EventRunner implements Runnable, EventConstants {
             } else {
                 //event runner is paused, keep checking for re-activation every 20ms
                 try {
-                    Thread.sleep(20);
+                    //Thread.sleep(20);
+                    TimeUnit.MILLISECONDS.sleep(20);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    break;
                 }
             }
             //all actions performed, repeat the process
-
-            System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow
         }
 
         //event runner was interrupted artificially, was this done by an error - or by the user?
@@ -179,7 +186,7 @@ public final class EventRunner implements Runnable, EventConstants {
                 for (ScheduledEvent e : events) { //check the event roster
                     if (e.triggerConditionsMet()) {
                         //conditions met, run the event
-                        System.out.println("Conditions met for event " + e.toString());
+                        //System.out.println("Conditions met for event " + e.toString());
 
                         if (e.isThreaded()) {
                             //event is to be given its own private thread (harder on CPU, faster)

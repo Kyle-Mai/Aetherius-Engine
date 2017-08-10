@@ -8,7 +8,10 @@ Builds a sprite map to be used on a SwingEX component.
 */
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.LookupOp;
+import java.awt.image.LookupTable;
 import java.util.ArrayList;
 
 public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConstants {
@@ -89,10 +92,42 @@ public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConst
         create(img, custom, i1, i2);
     }
 
+    public BufferedImage flip(BufferedImage s) { //flips a sprite image
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(0, -s.getHeight()));
+        return createRotated(createTransformed(s, at));
+    }
+
+    public void flipAll() { //Replaces all images in the SpriteMap with flipped versions
+        ArrayList<BufferedImage> temp = new ArrayList<>();
+        for (BufferedImage s : this) { temp.add(flip(s)); }
+        clear();
+        addAll(temp);
+        temp.clear();
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      Core methods.
      These should NOT be touched or accessed directly.
      */
+
+    private BufferedImage createTransformed(BufferedImage image, AffineTransform at) {
+        BufferedImage newImage = new BufferedImage(
+                image.getWidth(), image.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
+    }
+
+    private BufferedImage createRotated(BufferedImage image) {
+        AffineTransform at = AffineTransform.getRotateInstance(
+                Math.PI, image.getWidth()/2, image.getHeight()/2.0);
+        return createTransformed(image, at);
+    }
 
     private void create(BufferedImage img, boolean custom, int i1, int i2) {
         int width, height; //Width and height of each sprite.

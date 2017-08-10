@@ -105,6 +105,7 @@ public class MainInterface {
             monstermap = ImageIO.read(new File(imageFolder + "/monster.png"));
             monster = new XSpriteMap("MonsterMap", 1, monstermap);
             monster.createSprites(false, XSpriteConstants.HORIZONTAL_MAP, 10);
+            monster.flipAll();
             monstersprite = new XLabel(monster.get(monster.getCurrentIndex()));
             main.add(monstersprite, 2, 1);
             monstersprite.setBounds(0, 0, 1000, 1000);

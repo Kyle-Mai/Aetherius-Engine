@@ -12,6 +12,9 @@ public abstract class ScheduledEvent implements Runnable {
 
     private static AtomicInteger threadcount = new AtomicInteger(1);
 
+    private boolean removedOnTriggered; //Whether or not the event will be removed after it has been triggered.
+    private boolean threaded;
+
     public ScheduledEvent() {
         removedOnTriggered = false;
         threaded = false;
@@ -22,8 +25,6 @@ public abstract class ScheduledEvent implements Runnable {
         threaded = thread;
     }
 
-    private boolean removedOnTriggered; //Whether or not the event will be removed after it has been triggered.
-    private boolean threaded;
     public abstract boolean triggerConditions(); //The conditions that must be met for the event to trigger.
     public abstract void runEvent(); //The event's actions
     public final boolean triggerConditionsMet() { return triggerConditions(); }
@@ -34,10 +35,17 @@ public abstract class ScheduledEvent implements Runnable {
     public final void setThreaded(boolean b) { threaded = b; }
     public final boolean isThreaded() { return threaded; }
 
+    public static int getEventCount() { return threadcount.get(); } //gets the most recently executed event's name
+    public static void resetEventCount() { threadcount.set(1); } //resets the event counter to the default state (1)
+
     @Override
     public void run() {
-        Thread.currentThread().setName("Scheduled Event no." + threadcount.getAndIncrement());
-        runEvent();
+        try {
+            Thread.currentThread().setName("Scheduled Event no." + threadcount.getAndIncrement()); //tracks the current event number
+            runEvent(); //runs the event designated by the user
+        } catch (Exception e) { //event failed to run for some reason
+            System.out.println(Thread.currentThread().getName() + " failed to execute:");
+            e.printStackTrace();
+        }
     }
-
 }
