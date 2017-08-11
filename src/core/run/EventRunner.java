@@ -1,10 +1,10 @@
 package core.run;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Lolita's Revenge
@@ -32,8 +32,8 @@ public final class EventRunner implements Runnable, EventConstants {
     private boolean isInterrupted = false;
     private boolean isRunning = false;
 
-    private long currentCycle = 0; //keeps track of the current cycle
-    private long currentTick = 0; //keeps track of the current tick
+    private AtomicLong currentCycle = new AtomicLong(0); //keeps track of the current cycle
+    private AtomicLong currentTick = new AtomicLong(0); //keeps track of the current tick
     private final int cycleDuration = 1000; //how many ticks will pass before the cycle increases
 
     private double tickDuration = 0.0167; //approximately 60 ticks per second by default
@@ -53,8 +53,8 @@ public final class EventRunner implements Runnable, EventConstants {
     public double getTickDuration() { return tickDuration; }
     public void setTickDuration(double d) { tickDuration = d; }
 
-    public long getCurrentCycle() { return currentCycle; }
-    public long getCurrentTick() { return currentTick; }
+    public long getCurrentCycle() { return currentCycle.get(); }
+    public long getCurrentTick() { return currentTick.get(); }
 
     public int getCycleDuration() { return cycleDuration; }
 
@@ -63,8 +63,8 @@ public final class EventRunner implements Runnable, EventConstants {
     public boolean isPaused() { return isPaused; }
 
     public void reset() {
-        currentTick = 0;
-        currentCycle = 0;
+        currentTick.set(0);
+        currentCycle.set(0);
     }
 
     @Override
@@ -101,8 +101,7 @@ public final class EventRunner implements Runnable, EventConstants {
         events_thousand.clear();
         removed.clear();
         if (!preserveCycle) {
-            currentCycle = 0;
-            currentTick = 0;
+            reset();
         }
     }
 
@@ -115,8 +114,8 @@ public final class EventRunner implements Runnable, EventConstants {
             System.err.println("Thread pool shutdown sequence interrupted prematurely.");
         } finally {
             threadPool.shutdownNow(); //forces the thread pool to shutdown, even if tasks are still running
+            System.gc(); //prompt garbage collector to clean up any remnants
         }
-        System.gc(); //prompt garbage collector to clean up any remnants
     }
 
     /*------------------------------------------------------------------------------------------------------------------
@@ -131,14 +130,14 @@ public final class EventRunner implements Runnable, EventConstants {
 
         while (!isInterrupted) {
             if (!isPaused) {
-                switch ((int) currentTick) {
+                switch ((int) currentTick.get()) {
                     case cycleDuration:
-                        currentCycle++;
-                        currentTick = 0;
+                        currentCycle.incrementAndGet();
+                        currentTick.set(0);
                         //System.out.println("Cycle " + currentCycle);
                         System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
                     default:
-                        currentTick++;
+                        currentTick.incrementAndGet();
                 }
 
                 //cyclestart = System.currentTimeMillis();
@@ -146,17 +145,17 @@ public final class EventRunner implements Runnable, EventConstants {
                 eventPool.clear();
 
                 checkEventConditions(events_one);
-                if (currentTick % 10 == 0 && currentTick != 0) {
+                if (currentTick.get() % 10 == 0 && currentTick.get() != 0) {
                     checkEventConditions(events_ten);
                 }
-                if (currentTick % 100 == 0 && currentTick != 0) {
+                if (currentTick.get() % 100 == 0 && currentTick.get() != 0) {
                     checkEventConditions(events_hundred);
                 }
-                if (currentTick % 1000 == 0 && currentTick != 0) {
+                if (currentTick.get() % 1000 == 0 && currentTick.get() != 0) {
                     checkEventConditions(events_thousand);
                 }
 
-                threadPool.invokeAll(eventPool).stream().map(booleanFuture -> {
+                threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
                     try {
                         return booleanFuture.get();
                     } catch (Exception e) {
@@ -195,9 +194,10 @@ public final class EventRunner implements Runnable, EventConstants {
     }
 
     private void checkEventConditions(ArrayList<ScheduledEvent> events) { //checks and runs events
-        try {
-            if (events.size() > 0) {
-                for (ScheduledEvent e : events) { //check the event roster
+
+        if (events.size() > 0) {
+            for (ScheduledEvent e : events) { //check the event roster
+                try {
                     if (e.triggerConditionsMet()) {
                         //conditions met, run the event
                         //System.out.println("Conditions met for event " + e.toString());
@@ -216,11 +216,12 @@ public final class EventRunner implements Runnable, EventConstants {
                             removed.add(e);
                         }
                     }
+                } catch (Exception p) {
+                    p.printStackTrace();
+                    removed.add(e); //remove the faulty event from the queue
                 }
                 //nothing loaded in the queue to be triggered
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         if (!removed.isEmpty()) {

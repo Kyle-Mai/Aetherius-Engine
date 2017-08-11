@@ -45,9 +45,10 @@ public abstract class ScheduledEvent implements Callable<Boolean> {
             Thread.currentThread().setName("Scheduled Event no." + threadcount.getAndIncrement()); //tracks the current event number
             runEvent(); //runs the event designated by the user
         } catch (Exception e) { //event failed to run for some reason
-            System.out.println(Thread.currentThread().getName() + " failed to execute:");
+            System.err.println(Thread.currentThread().getName() + " failed to execute:");
             e.printStackTrace();
+            return false; //allows the EventRunner the potential to deal with a failed event
         }
-        return true;
+        return true; //arbitrary return to signal the event's completion
     }
 }
