@@ -1,6 +1,9 @@
 package core.run;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -21,6 +24,7 @@ public final class EventRunner implements Runnable, EventConstants {
     private ArrayList<ScheduledEvent> events_hundred = new ArrayList<>();
     private ArrayList<ScheduledEvent> events_thousand = new ArrayList<>();
     private ArrayList<ScheduledEvent> removed = new ArrayList<>();
+    private List<ScheduledEvent> eventPool = new LinkedList<>();
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -108,7 +112,7 @@ public final class EventRunner implements Runnable, EventConstants {
             threadPool.shutdown(); //shuts down the threading used by the EventRunner
             threadPool.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            System.err.println("Thread pool shutdown interrupted prematurely.");
+            System.err.println("Thread pool shutdown sequence interrupted prematurely.");
         } finally {
             threadPool.shutdownNow(); //forces the thread pool to shutdown, even if tasks are still running
         }
@@ -139,6 +143,8 @@ public final class EventRunner implements Runnable, EventConstants {
 
                 //cyclestart = System.currentTimeMillis();
 
+                eventPool.clear();
+
                 checkEventConditions(events_one);
                 if (currentTick % 10 == 0 && currentTick != 0) {
                     checkEventConditions(events_ten);
@@ -150,13 +156,21 @@ public final class EventRunner implements Runnable, EventConstants {
                     checkEventConditions(events_thousand);
                 }
 
+                threadPool.invokeAll(eventPool).stream().map(booleanFuture -> {
+                    try {
+                        return booleanFuture.get();
+                    } catch (Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).forEach(System.out::println); //TODO: Not properly printing results..
+
                 //cycleend = System.currentTimeMillis();
                 //System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
 
                 // pauses the thread for the duration of the tick
                 try {
-                    //Thread.sleep((long) (tickDuration * 1000));
-                    TimeUnit.SECONDS.sleep((long) tickDuration);
+                    Thread.sleep((long) (tickDuration * 1000));
+                    //TimeUnit.SECONDS.sleep((long) tickDuration);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -164,8 +178,8 @@ public final class EventRunner implements Runnable, EventConstants {
             } else {
                 //event runner is paused, keep checking for re-activation every 20ms
                 try {
-                    //Thread.sleep(20);
-                    TimeUnit.MILLISECONDS.sleep(20);
+                    Thread.sleep(20);
+                    //TimeUnit.MILLISECONDS.sleep(20);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     break;
@@ -190,7 +204,8 @@ public final class EventRunner implements Runnable, EventConstants {
 
                         if (e.isThreaded()) {
                             //event is to be given its own private thread (harder on CPU, faster)
-                            threadPool.submit(e);
+                            eventPool.add(e);
+                            //threadPool.submit(e);
                         } else {
                             //run event in main EventRunner thread (better on CPU, slower)
                             e.runEvent();

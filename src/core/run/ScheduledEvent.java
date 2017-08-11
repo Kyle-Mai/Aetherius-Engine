@@ -1,5 +1,6 @@
 package core.run;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -8,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Schedules events for the EventRunner.
  */
 
-public abstract class ScheduledEvent implements Runnable {
+public abstract class ScheduledEvent implements Callable<Boolean> {
 
     private static AtomicInteger threadcount = new AtomicInteger(1);
 
@@ -39,7 +40,7 @@ public abstract class ScheduledEvent implements Runnable {
     public static void resetEventCount() { threadcount.set(1); } //resets the event counter to the default state (1)
 
     @Override
-    public void run() {
+    public Boolean call() {
         try {
             Thread.currentThread().setName("Scheduled Event no." + threadcount.getAndIncrement()); //tracks the current event number
             runEvent(); //runs the event designated by the user
@@ -47,5 +48,6 @@ public abstract class ScheduledEvent implements Runnable {
             System.out.println(Thread.currentThread().getName() + " failed to execute:");
             e.printStackTrace();
         }
+        return true;
     }
 }

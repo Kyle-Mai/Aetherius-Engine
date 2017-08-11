@@ -9,7 +9,7 @@ package core.run;
 public interface EventConstants {
 
     int frequency_10 = 10;
-    int frquency_1 = 1;
+    int frequency_1 = 1;
     int frequency_100 = 100;
     int frequency_1000 = 1000;
 
