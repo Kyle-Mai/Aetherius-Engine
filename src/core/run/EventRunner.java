@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Designed to run events on a 'tick' basis, with the ability to schedule different events to run on different ticks.
  */
 
-public final class EventRunner implements Runnable, EventConstants {
+public class EventRunner implements Runnable, EventConstants {
 
     /*------------------------------------------------------------------------------------------------------------------
      Variables.
@@ -109,12 +109,21 @@ public final class EventRunner implements Runnable, EventConstants {
         dump(false);
         try {
             threadPool.shutdown(); //shuts down the threading used by the EventRunner
-            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+            threadPool.awaitTermination(10, TimeUnit.SECONDS); //gives the thread pool 10 seconds to shutdown before forcing it to shutdown
         } catch (InterruptedException e) {
             System.err.println("Thread pool shutdown sequence interrupted prematurely.");
+            e.printStackTrace();
         } finally {
             threadPool.shutdownNow(); //forces the thread pool to shutdown, even if tasks are still running
             System.gc(); //prompt garbage collector to clean up any remnants
+        }
+    }
+
+    public void runSingleTick() { //manual call to run a single tick of events
+        try {
+            runEvents();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -130,50 +139,7 @@ public final class EventRunner implements Runnable, EventConstants {
 
         while (!isInterrupted) {
             if (!isPaused) {
-                switch ((int) currentTick.get()) {
-                    case cycleDuration:
-                        currentCycle.incrementAndGet();
-                        currentTick.set(0);
-                        //System.out.println("Cycle " + currentCycle);
-                        System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
-                    default:
-                        currentTick.incrementAndGet();
-                }
-
-                //cyclestart = System.currentTimeMillis();
-
-                eventPool.clear();
-
-                checkEventConditions(events_one);
-                if (currentTick.get() % 10 == 0 && currentTick.get() != 0) {
-                    checkEventConditions(events_ten);
-                }
-                if (currentTick.get() % 100 == 0 && currentTick.get() != 0) {
-                    checkEventConditions(events_hundred);
-                }
-                if (currentTick.get() % 1000 == 0 && currentTick.get() != 0) {
-                    checkEventConditions(events_thousand);
-                }
-
-                threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
-                    try {
-                        return booleanFuture.get();
-                    } catch (Exception e) {
-                        throw new IllegalStateException(e);
-                    }
-                }).forEach(System.out::println); //TODO: Not properly printing results..
-
-                //cycleend = System.currentTimeMillis();
-                //System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
-
-                // pauses the thread for the duration of the tick
-                try {
-                    Thread.sleep((long) (tickDuration * 1000));
-                    //TimeUnit.SECONDS.sleep((long) tickDuration);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+                runEvents();
             } else {
                 //event runner is paused, keep checking for re-activation every 20ms
                 try {
@@ -190,7 +156,56 @@ public final class EventRunner implements Runnable, EventConstants {
         //event runner was interrupted artificially, was this done by an error - or by the user?
         isRunning = false;
         isInterrupted = false;
-        throw new InterruptedException("EventRunner cycle interrupted prematurely -- was this intentional?");
+        throw new InterruptedException("EventRunner cycle interrupted -- was this intentional?");
+    }
+
+    private synchronized boolean runEvents() throws InterruptedException {
+
+        switch ((int) currentTick.get()) {
+            case cycleDuration:
+                currentCycle.incrementAndGet();
+                currentTick.set(0);
+                //System.out.println("Cycle " + currentCycle);
+                System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
+            default:
+                currentTick.incrementAndGet();
+        }
+
+        //cyclestart = System.currentTimeMillis();
+
+        eventPool.clear();
+
+        checkEventConditions(events_one);
+        if (currentTick.get() % 10 == 0 && currentTick.get() != 0) {
+            checkEventConditions(events_ten);
+        }
+        if (currentTick.get() % 100 == 0 && currentTick.get() != 0) {
+            checkEventConditions(events_hundred);
+        }
+        if (currentTick.get() % 1000 == 0 && currentTick.get() != 0) {
+            checkEventConditions(events_thousand);
+        }
+
+        threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
+            try {
+                return booleanFuture.get();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }).forEach(System.out::println); //TODO: Not properly printing results..
+
+        //cycleend = System.currentTimeMillis();
+        //System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
+
+        // pauses the thread for the duration of the tick
+        try {
+            Thread.sleep((long) (tickDuration * 1000));
+            //TimeUnit.SECONDS.sleep((long) tickDuration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return true; //returns an arbitrary true value to allow for possible usage of checking when the tick is 'complete'
     }
 
     private void checkEventConditions(ArrayList<ScheduledEvent> events) { //checks and runs events

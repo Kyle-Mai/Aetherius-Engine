@@ -10,8 +10,6 @@ Builds a sprite map to be used on a SwingEX component.
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.LookupOp;
-import java.awt.image.LookupTable;
 import java.util.ArrayList;
 
 public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConstants {

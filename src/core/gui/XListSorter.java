@@ -102,7 +102,7 @@ public class XListSorter implements XConstants {
     public void placeItems(JComponent c) { //Adds the components to the specified component
 
         if (list.size() == 0) { //no items > don't attempt to place
-            System.out.println("XListSorter - No items in the queue, aborting item placer.");
+            System.err.println("XListSorter - No items in the queue, aborting item placer.");
             return;
         }
 
@@ -110,7 +110,7 @@ public class XListSorter implements XConstants {
             try { //Attempt to add item to the specified component
                 c.add(item);
             } catch (Exception e) { //if it errors during generation, skip it and move to the next iteration
-                System.out.println("ListSorter component was not initialized: " + e.getMessage());
+                System.err.println("ListSorter component was not initialized: " + e.getMessage());
                 continue;
             }
 
@@ -138,7 +138,7 @@ public class XListSorter implements XConstants {
                     item.setLocation(posx, posy);
                     break;
                 default:
-                    System.out.println("ListSorter sort method not properly specified. Defaulting to HORIZONTAL_SORT.");
+                    System.err.println("ListSorter sort method not properly specified. Defaulting to HORIZONTAL_SORT.");
                     item.setLocation(posx, posy);
                     posx += item.getWidth() + space;
                     break;

@@ -46,7 +46,7 @@ public class XGreyscale {
     public boolean isImageConverted() { return imageConverted; }
 
     public void convertImage() {
-        if (source == null) throw new NullPointerException();
+        if (source == null) throw new NullPointerException("No source image specified.");
 
         //copies the source image, rather than utilizing the source itself rendering it unusable
         ColorModel model = source.getColorModel();
@@ -76,7 +76,7 @@ public class XGreyscale {
             ImageIO.write(greyscaledImage, "jpg", greyscaleOutput);
             System.out.println("Greyscaled image successfully exported.");
         } catch (IOException e) {
-            System.out.println("Export failed.");
+            System.err.println("Export failed.");
             e.printStackTrace();
         }
     }

@@ -28,8 +28,6 @@ public class WeightedRandom {
      Used to construct instances of the class.
      */
 
-    public WeightedRandom() {}
-
     public WeightedRandom(int i1, int i2) {
         low = i1;
         high = i2;
@@ -68,6 +66,7 @@ public class WeightedRandom {
     }
 
     public int getWeightedRandom() {
+        if (weightedArray.isEmpty()) throw new NullPointerException("Weighted list was not initialized or is empty -- try running setWeightedArray() first.");
         Random r = new Random();
         return weightedArray.get(r.nextInt(weightedArray.size()));
     }

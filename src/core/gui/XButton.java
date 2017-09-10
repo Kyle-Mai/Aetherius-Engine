@@ -118,7 +118,7 @@ public class XButton extends JButton implements XConstants, XElement {
             Image scaledImage = image.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
             this.setIcon(new ImageIcon(scaledImage));
         } else {
-            System.out.println("XButton could not resize the image - Unknown scaling operation. Aborted process.");
+            System.err.println("XButton could not resize the image - Unknown scaling operation. Aborted process.");
         }
     }
 

@@ -48,7 +48,7 @@ public enum screenScale {
 
     public static void setScreenSize(Dimension newSize) {
         if (newSize.getWidth() > monitorSize.getWidth() || newSize.getHeight() > monitorSize.getHeight()) {
-            System.out.println("Unexpected Error - Monitor is not large enough to support this resolution.");
+            System.err.println("Unexpected Error - Monitor is not large enough to support this resolution.");
         } else {
             //no incompatibilities, proceed
             screenSize = newSize;
