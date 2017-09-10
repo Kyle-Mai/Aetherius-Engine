@@ -86,6 +86,9 @@ public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConst
         if (dumpingSource) { source = null; }
     }
 
+    public void createSprite(int x, int y, int w, int h) { add(source.getSubimage(x, y, w, h)); }
+    public void createSprite(BufferedImage i, int x, int y, int w, int h) { add(i.getSubimage(x, y, w, h)); }
+
     public void createSprites(BufferedImage img, boolean custom, int i1, int i2) { //Builds sprites from a chosen image
         if (img == null) throw new NullPointerException("Image was either unspecified or invalid.");
         if (!dumpingSource) { source = img; }
@@ -142,7 +145,7 @@ public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConst
                     try {
                         add(img.getSubimage(x, y, width, height));
                     } catch (Exception e) { //If an error occurs while generating the sprite, replace it with a null.
-                        System.out.println("Error when generating sprite image: " + e.getMessage());
+                        System.err.println("Error when generating sprite image: " + e.getMessage());
                         add(null);
                     }
                     x += width;
@@ -155,14 +158,14 @@ public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConst
                     try {
                         add(img.getSubimage(x, y, width, height));
                     } catch (Exception e) { //If an error occurs while generating the sprite, replace it with a null.
-                        System.out.println("Error when generating sprite image: " + e.getMessage());
+                        System.err.println("Error when generating sprite image: " + e.getMessage());
                         add(null);
                     }
                     y += height;
                 }
                 System.out.println("Sprites created.");
             } else { //Unknown map.
-                System.out.println("Unknown mapping style.");
+                System.err.println("Unknown mapping style.");
             }
 
         } else { //Custom sprite map, such as one with multiple rows and columns. i1 defines the number of sprites in the x-coordinate, i2 defines the number of sprites in the y-coordinate.
@@ -175,7 +178,7 @@ public class XSpriteMap extends ArrayList<BufferedImage> implements XSpriteConst
                     try {
                         add(img.getSubimage(x, y, width, height));
                     } catch (Exception e) { //If an error occurs while generating the sprite, replace it with a null.
-                        System.out.println("Error when generating sprite image: " + e.getMessage());
+                        System.err.println("Error when generating sprite image: " + e.getMessage());
                         add(null);
                     }
                     x += width;

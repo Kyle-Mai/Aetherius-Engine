@@ -1,27 +1,54 @@
 package test_implementation;
 
+import core.math.WeightedRandom;
 import core.run.EventRunner;
 import core.run.ScheduledEvent;
 import core.sfx.AudioPlayer;
 import test_implementation.gui.MainInterface;
 import test_implementation.sfx.AudioLoader;
 
-import java.awt.*;
 import java.io.File;
-import java.util.Random;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.LinkedList;
 
 public class Main {
 
-    private static EventRunner event;
     private static  MainInterface ui;
-    private static AudioLoader test;
 
     public static void main(String[] args) {
+        testWR();
+    }
 
-        long starttime;
-        long endtime;
+    private static void testWR() { //tests the functionality of the weighted random class
 
-        starttime = System.currentTimeMillis();
+        WeightedRandom random = new WeightedRandom(5, 15);
+        LinkedList<Integer> results = new LinkedList<>();
+
+        random.setSigma(1.8); //for best results - sigma between 1.5 (low normalization) and 4.0 (high normalization)
+        random.setWeightedArray(4);
+
+        for (int i = 0; i < 1000; i++) {
+            results.addFirst(random.getWeightedRandom());
+        }
+        int temp;
+        double percent;
+
+        DecimalFormat df = new DecimalFormat("#.#");
+        df.setRoundingMode(RoundingMode.FLOOR);
+
+        for (int i = random.getLow(); i <= random.getHigh(); i++) {
+            temp = Collections.frequency(results, i);
+            percent = (((double)temp / results.size()) * 100);
+            System.out.println(i + " | Occurrences: " + temp + " | " + df.format(percent) + "%");
+        }
+
+    }
+
+    private static void testUI() { //tests the functionality of the UI system
+        AudioLoader test;
+        EventRunner event;
 
         ui = new MainInterface();
         test = new AudioLoader();
@@ -46,103 +73,6 @@ public class Main {
             }
         });
 
-        /*
-        event.addEvent(100, new ScheduledEvent(false, true) {
-            boolean greyscale = false;
-
-            @Override
-            public void runEvent() {
-                if (greyscale) {
-                    ui.getBackgroundimage().scaleImage(ui.getGsc().getSource());
-                } else {
-                    ui.getBackgroundimage().scaleImage(ui.getGsc().getGreyscaledImage());
-                }
-                ui.getBackgroundimage().refresh();
-                greyscale = !greyscale;
-            }
-
-            @Override
-            public boolean triggerConditions() {
-                return true;
-            }
-        });
-
-        event.addEvent(100, new ScheduledEvent() {
-            private int counter;
-
-            @Override
-            public void runEvent() {
-                counter++;
-
-                if (test.getAudioMain().isPlaying()) {
-                    test.getAudioMain().pause();
-                } else {
-                    test.getAudioMain().resume();
-                }
-
-
-                if (counter > 5) {
-                    test.getAudioMain().stop();
-                    counter = 0;
-                }
-            }
-
-            @Override
-            public boolean triggerConditions() {
-                return true;
-            }
-        });
-
-        event.addEvent(1, new ScheduledEvent(false, true) {
-            int counter2 = 0;
-            int counter = 0;
-            Random lol = new Random();
-            @Override
-            public void runEvent() {
-                switch (counter) {
-                    case 0:
-                        ui.getHeader().setText("// TESTING //");
-                        break;
-                    case 1:
-                        ui.getHeader().setText("// - TESTING - //");
-                        break;
-                    case 2:
-                        ui.getHeader().setText("// -- TESTING -- //");
-                        break;
-                    case 3:
-                        ui.getHeader().setText("// --- TESTING --- //");
-                        break;
-                    case 4:
-                        ui.getHeader().setText("// SUS //");
-                        break;
-                    default:
-                        ui.getHeader().setText("BROKE");
-                        break;
-                }
-                counter2++;
-                if (counter2 >= 30) {
-                    counter++;
-                    counter2 = 0;
-                }
-
-                int r = lol.nextInt(255);
-                int g = lol.nextInt(255);
-                int b = lol.nextInt(255);
-                ui.getHeader().setForeground(new Color(r, g, b, 255));
-                ui.getHeader().refresh();
-
-                if (counter > 4) {
-                    counter = 0;
-                }
-            }
-
-            @Override
-            public boolean triggerConditions() {
-                return true;
-            }
-        });
-        */
-
         ScheduledEvent leeroy = new ScheduledEvent(true, false) {
             @Override
             public boolean triggerConditions() {
@@ -166,10 +96,6 @@ public class Main {
         Thread main = new Thread(event);
         main.setName("Event Handler Thread");
         main.start();
-
-        endtime = System.currentTimeMillis();
-        System.out.println("Test finished loading. || Duration - " + (endtime - starttime) + "ms");
-
     }
 
 

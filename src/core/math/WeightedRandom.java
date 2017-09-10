@@ -19,9 +19,9 @@ public class WeightedRandom {
      Used to determine the function of the class.
      */
 
+    private ArrayList<Integer> weightedArray = new ArrayList<>();
     private int low, high;
-    private double val = 0;
-    private double sigma;
+    private double sigma = 2.0;
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -48,29 +48,63 @@ public class WeightedRandom {
 
     public int getLow() { return low; }
     public int getHigh() { return high; }
-    public int getMedian() { return (low + high) / 2; }
     public double getSigma() { return sigma; }
-    public double getValue() { return val; }
+    public int getRange() { return high - low; }
 
     public void setLow(int i) { low = i; }
     public void setHigh(int i) { high = i; }
     public void setSigma(double s) { sigma = s; }
 
+    public double getMedian() { return (low + high) / 2; }
+    public double getMean() {
+        int temp = 0;
+        for (int i = low; i <= high; i++) { temp += i; }
+        return temp / getRange();
+    }
+
     public double getRandom() {
         Random r = new Random();
-        val = low + r.nextInt(high);
-        return val;
+        return low + r.nextInt(high);
     }
 
-    public int getWeightedRandom(int decimal) {
-        return 0;
+    public int getWeightedRandom() {
+        Random r = new Random();
+        return weightedArray.get(r.nextInt(weightedArray.size()));
     }
 
-    public double getDeviation(int decimal) {
+    public void setWeightedArray(int decimal) {
+        weightedArray.clear();
+        double temp;
+        for (int i = low; i <= high; i++) {
+            temp = getDeviation(i, decimal) * 100;
+            for (int j = 0; j < temp; j++) {
+                weightedArray.add(i);
+            }
+            //System.out.println(temp + " at " + i);
+        }
+        //System.out.println("Done. " + weightedArray.size());
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------
+     Core methods.
+     These should NOT be touched or accessed directly.
+     */
+
+    private double getDeviation(int x, int decimal) {
+
         if (decimal < 0) throw new IllegalArgumentException(); //We can't have less than 0 decimal points. Throw an exception if this happens.
         Random r = new Random();
-        val = Math.pow(((1 / sigma * (Math.sqrt(2 * Math.PI))) * Math.E), -(Math.pow(((((low * Math.pow(10, decimal)) + r.nextInt((high * (int)Math.pow(10, decimal)))) / Math.pow(10, decimal)) - getMedian()), 2) / (2 * Math.pow(sigma, 2)))); //Standard deviation formula // todo: fix
-        BigDecimal rounded = new BigDecimal(val);
+        //val = Math.pow(((1 / sigma * (Math.sqrt(2 * Math.PI))) * Math.E), -(Math.pow(((((low * Math.pow(10, decimal)) + r.nextInt((high * (int)Math.pow(10, decimal)))) / Math.pow(10, decimal)) - getMean()), 2) / (2 * Math.pow(sigma, 2)))); //OLD FORMULA
+        BigDecimal rounded = new BigDecimal(
+                Math.pow(
+                        //base
+                        ((1 / sigma * (Math.sqrt(2 * Math.PI))) * Math.E),
+                        //exponent
+                        -(Math.pow(x - getMedian(), 2)
+                                / (2 * Math.pow(sigma, 2))
+                        )
+                )
+        );
         rounded = rounded.setScale(decimal, RoundingMode.HALF_UP);
         return rounded.doubleValue();
     }
