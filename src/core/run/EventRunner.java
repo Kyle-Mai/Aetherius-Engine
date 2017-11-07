@@ -61,6 +61,7 @@ public class EventRunner implements Runnable, EventConstants {
     public boolean isPaused() { return isPaused; }
 
     public void reset() {
+        interrupt();
         currentTick.set(0);
         currentCycle.set(0);
     }
@@ -81,7 +82,7 @@ public class EventRunner implements Runnable, EventConstants {
     }
 
     public void addEvent(int tick, ScheduledEvent event, int repeatEvery) {
-        for (int i = 0; i < cycleDuration; i = i + repeatEvery) {
+        for (int i = 0; i < cycleDuration; i+=repeatEvery) {
             insertEvent(tick, event);
         }
         System.out.println("Event added successfully, repeating every " + repeatEvery + " ticks.");
@@ -95,6 +96,7 @@ public class EventRunner implements Runnable, EventConstants {
     }
 
     public void dispose() {
+        interrupt();
         dump(false);
         try {
             threadPool.shutdown(); //shuts down the threading used by the EventRunner
@@ -110,9 +112,19 @@ public class EventRunner implements Runnable, EventConstants {
 
     public void runSingleTick() { //manual call to run a single tick of events
         try {
-            runEvents();
+            if (!isRunning) {
+                runEvents();
+            } else {
+                System.err.println("EventRunner runSingleTick method cannot be invoked while the EventRunner is running.");
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void interrupt() {
+        if (isRunning) {
+            isInterrupted = true;
         }
     }
 
