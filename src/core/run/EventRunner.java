@@ -1,6 +1,7 @@
 package core.run;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -19,12 +20,9 @@ public class EventRunner implements Runnable, EventConstants {
      Define the function of the EventRunner.
      */
 
-    private ArrayList<ScheduledEvent> events_one = new ArrayList<>();
-    private ArrayList<ScheduledEvent> events_ten = new ArrayList<>();
-    private ArrayList<ScheduledEvent> events_hundred = new ArrayList<>();
-    private ArrayList<ScheduledEvent> events_thousand = new ArrayList<>();
     private ArrayList<ScheduledEvent> removed = new ArrayList<>();
     private List<ScheduledEvent> eventPool = new LinkedList<>();
+    private Hashtable<Integer, ArrayList<ScheduledEvent>> eventList = new Hashtable<>();
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -77,29 +75,20 @@ public class EventRunner implements Runnable, EventConstants {
         //EventRunner finished all processes!
     }
 
-    public void addEvent(int frequency, ScheduledEvent event) { //TODO: Make less shite.
-        switch (frequency) {
-            case frequency_10: // = 10
-                events_ten.add(event);
-                break;
-            case frequency_100: // = 100
-                events_hundred.add(event);
-                break;
-            case frequency_1000: // = 1000
-                events_thousand.add(event);
-                break;
-            default: // = 1
-                events_one.add(event);
-            break;
+    public void addEvent(int tick, ScheduledEvent event) {
+        insertEvent(tick, event);
+        System.out.println("Event added successfully.");
+    }
+
+    public void addEvent(int tick, ScheduledEvent event, int repeatEvery) {
+        for (int i = 0; i < cycleDuration; i = i + repeatEvery) {
+            insertEvent(tick, event);
         }
+        System.out.println("Event added successfully, repeating every " + repeatEvery + " ticks.");
     }
 
     public void dump(boolean preserveCycle) {
-        events_one.clear();
-        events_ten.clear();
-        events_hundred.clear();
-        events_thousand.clear();
-        removed.clear();
+        eventList.clear();
         if (!preserveCycle) {
             reset();
         }
@@ -133,6 +122,20 @@ public class EventRunner implements Runnable, EventConstants {
      */
 
     //private long cyclestart, cycleend;
+
+    private void insertEvent(int tick, ScheduledEvent event) { //adds the events into the hashtable
+        try {
+            if (eventList.get(tick) != null) {
+                eventList.get(tick).add(event);
+            } else {
+                eventList.put(tick, new ArrayList<ScheduledEvent>());
+                eventList.get(tick).add(event);
+            }
+        } catch (Exception e) {
+            System.err.println("Error adding new event to EventRunner.");
+            e.printStackTrace();
+        }
+    }
 
     private void eventCycle() throws InterruptedException {
         isRunning = true;
@@ -175,15 +178,8 @@ public class EventRunner implements Runnable, EventConstants {
 
         eventPool.clear();
 
-        checkEventConditions(events_one);
-        if (currentTick.get() % 10 == 0 && currentTick.get() != 0) {
-            checkEventConditions(events_ten);
-        }
-        if (currentTick.get() % 100 == 0 && currentTick.get() != 0) {
-            checkEventConditions(events_hundred);
-        }
-        if (currentTick.get() % 1000 == 0 && currentTick.get() != 0) {
-            checkEventConditions(events_thousand);
+        if (!eventList.get(currentTick.intValue()).isEmpty()) {
+            checkEventConditions(eventList.get(currentTick.intValue()));
         }
 
         threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
@@ -237,11 +233,15 @@ public class EventRunner implements Runnable, EventConstants {
                 }
                 //nothing loaded in the queue to be triggered
             }
+
+            if (!removed.isEmpty()) {
+                events.removeAll(removed);
+                removed.clear();
+            }
         }
 
-        if (!removed.isEmpty()) {
-            events.removeAll(removed);
-            removed.clear();
+        if (events.isEmpty()) {
+            eventList.remove(currentTick.intValue()); //empty list, remove it from the queue
         }
     }
 
