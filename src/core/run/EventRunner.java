@@ -34,7 +34,7 @@ public class EventRunner implements Runnable, EventConstants {
     private AtomicLong currentTick = new AtomicLong(0); //keeps track of the current tick
     private final int cycleDuration = 1000; //how many ticks will pass before the cycle increases
 
-    private double tickDuration = 0.0167; //approximately 60 ticks per second by default
+    private double tickDuration = render_tick; //uses the render tick speed by default (60/s)
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
@@ -42,12 +42,6 @@ public class EventRunner implements Runnable, EventConstants {
      */
 
     public EventRunner() {}
-    
-    public EventRunner(int cycle, int tick) {
-        currentCycle.set(cycle);
-        currentTick.set(tick);
-        System.out.println("Successfully initialized a new EventRunner at Cycle " + cycle + ", Tick " + tick + ".");
-    }
 
     /*------------------------------------------------------------------------------------------------------------------
      Accessible methods.
@@ -66,6 +60,15 @@ public class EventRunner implements Runnable, EventConstants {
     public boolean isInterrupted() { return isInterrupted; }
     public boolean isPaused() { return isPaused; }
 
+    public ArrayList<ScheduledEvent> getEvents(int key) { return eventList.get(key); }
+    public ArrayList<ScheduledEvent> getAllEvents() { //returns all of the events
+        ArrayList<ScheduledEvent> combined = new ArrayList<>();
+        for (int key : eventList.keySet()) {
+            combined.addAll(eventList.get(key));
+        }
+        return combined;
+    }
+
     public void reset() {
         interrupt();
         currentTick.set(0);
@@ -83,19 +86,25 @@ public class EventRunner implements Runnable, EventConstants {
     }
 
     public void addEvent(int tick, ScheduledEvent event) {
-        insertEvent(tick, event);
-        System.out.println("Event added successfully.");
-    }
-
-    public void addEvent(int tick, ScheduledEvent event, int repeatEvery) {
-        for (int i = 0; i < cycleDuration; i+=repeatEvery) {
-            insertEvent(tick, event);
+        if (tick > cycleDuration) {
+            System.err.println("Attempted to insert an event into a tick outside of the EventRunner's cycle duration.");
+            return;
         }
-        System.out.println("Event added successfully, repeating every " + repeatEvery + " ticks.");
+        try {
+            if (eventList.get(tick) != null) { //array already exists at this node, insert the event into it
+                eventList.get(tick).add(event);
+            } else { //no arraylist found, create one and insert the event into it
+                eventList.put(tick, new ArrayList<ScheduledEvent>());
+                eventList.get(tick).add(event);
+            }
+            System.out.println("Event added successfully.");
+        } catch (Exception e) { //something done goofed
+            System.err.println("Error adding new event to EventRunner.");
+            e.printStackTrace();
+        }
     }
 
     public void dump(boolean preserveCycle) {
-        interrupt();
         eventList.clear();
         if (!preserveCycle) {
             reset();
@@ -103,12 +112,13 @@ public class EventRunner implements Runnable, EventConstants {
     }
 
     public void dispose() {
+        interrupt();
         dump(false);
         try {
             threadPool.shutdown(); //shuts down the threading used by the EventRunner
             threadPool.awaitTermination(10, TimeUnit.SECONDS); //gives the thread pool 10 seconds to shutdown before forcing it to shutdown
         } catch (InterruptedException e) {
-            System.err.println("EventRunner thread pool shutdown sequence interrupted prematurely.");
+            System.err.println("Thread pool shutdown sequence interrupted prematurely.");
             e.printStackTrace();
         } finally {
             threadPool.shutdownNow(); //forces the thread pool to shutdown, even if tasks are still running
@@ -141,24 +151,10 @@ public class EventRunner implements Runnable, EventConstants {
 
     //private long cyclestart, cycleend;
 
-    private void insertEvent(int tick, ScheduledEvent event) { //adds the events into the hashtable
-        try {
-            if (eventList.get(tick) != null) { //check to see if an arraylist of events already exists at this tick
-                eventList.get(tick).add(event); //if it does, insert the event into the preexisting array
-            } else { //if no arraylist exists at this point, add a new one in
-                eventList.put(tick, new ArrayList<ScheduledEvent>());
-                eventList.get(tick).add(event);
-            }
-        } catch (Exception e) { //something was fudged, print the error
-            System.err.println("Error adding new event to EventRunner.");
-            e.printStackTrace();
-        }
-    }
-
     private void eventCycle() throws InterruptedException {
         isRunning = true;
 
-        while (!isInterrupted) { //continue running the event cycle until the process is interrupted
+        while (!isInterrupted) {
             if (!isPaused) {
                 runEvents();
             } else {
@@ -182,21 +178,24 @@ public class EventRunner implements Runnable, EventConstants {
 
     private synchronized boolean runEvents() throws InterruptedException {
 
-        switch ((int) currentTick.get()) { //check the current tick
-            case cycleDuration: //if the tick is equal to the cycle duration, increment the cycle
+        switch ((int) currentTick.get()) {
+            case cycleDuration:
                 currentCycle.incrementAndGet();
-                currentTick.set(0); //reset the tick
+                currentTick.set(0);
+                //System.out.println("Cycle " + currentCycle);
                 System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
-            default: //if the tick is not equal to the cycle duration, increment the tick
+            default:
                 currentTick.incrementAndGet();
         }
 
         //cyclestart = System.currentTimeMillis();
 
-        eventPool.clear(); //clear the event pool
+        eventPool.clear();
 
-        if (!eventList.get(currentTick.intValue()).isEmpty()) { //check the current tick for any events that may comply and add them to the event pool
-            checkEventConditions(eventList.get(currentTick.intValue()));
+        for (int key : eventList.keySet()) { //check all of the keys in the eventList
+            if (currentTick.intValue() % key == 0) { //check to see if the current tick and the key are of the same multiple
+                checkEventConditions(key, eventList.get(key)); //if the tick is a multiple of the key, run the events in that key
+            }
         }
 
         threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
@@ -221,13 +220,15 @@ public class EventRunner implements Runnable, EventConstants {
         return true; //returns an arbitrary true value to allow for possible usage of checking when the tick is 'complete'
     }
 
-    private void checkEventConditions(ArrayList<ScheduledEvent> events) { //checks and runs events
+    private void checkEventConditions(int id, ArrayList<ScheduledEvent> events) { //checks and runs events
 
-        if (events.size() > 0) { //check to ensure the arraylist is not empty
+        if (events.size() > 0) {
             for (ScheduledEvent e : events) { //check the event roster
                 try {
-                    if (e.triggerConditionsMet()) { //check if the conditions are met to run the event
+                    if (e.triggerConditionsMet()) {
+                        //conditions met, run the event
                         //System.out.println("Conditions met for event " + e.toString());
+
                         if (e.isThreaded()) {
                             //event is to be given its own private thread (harder on CPU, faster)
                             eventPool.add(e);
@@ -249,14 +250,14 @@ public class EventRunner implements Runnable, EventConstants {
                 //nothing loaded in the queue to be triggered
             }
 
-            if (!removed.isEmpty()) { //run another check to see if there were any events that need to be purged from the roster
-                events.removeAll(removed); //remove all of the purged events
+            if (!removed.isEmpty()) {
+                events.removeAll(removed);
                 removed.clear();
             }
         }
 
-        if (events.isEmpty()) { //check if the events arraylist is empty again
-            eventList.remove(currentTick.intValue()); //if the list is empty, remove it from the event roster
+        if (events.isEmpty()) {
+            eventList.remove(id); //empty list, remove it from the queue
         }
     }
 

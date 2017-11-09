@@ -8,10 +8,8 @@ package core.run;
 
 public interface EventConstants {
 
-    int frequency_10 = 10;
-    int frequency_1 = 1;
-    int frequency_100 = 100;
-    int frequency_1000 = 1000;
-
+    double render_tick = 0.0167; //approximately 60 ticks per second
+    double phys_tick = 0.00835; //approximately 120 ticks per second
+    double update_tick = 0.5; //2 ticks per second
 
 }
