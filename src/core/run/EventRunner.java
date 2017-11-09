@@ -1,10 +1,8 @@
 package core.run;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -20,6 +18,8 @@ public class EventRunner implements Runnable, EventConstants {
      Define the function of the EventRunner.
      */
 
+    private final static AtomicInteger idNumber = new AtomicInteger(0);
+
     private ArrayList<ScheduledEvent> removed = new ArrayList<>();
     private List<ScheduledEvent> eventPool = new LinkedList<>();
     private Hashtable<Integer, ArrayList<ScheduledEvent>> eventList = new Hashtable<>();
@@ -33,6 +33,7 @@ public class EventRunner implements Runnable, EventConstants {
     private AtomicLong currentCycle = new AtomicLong(0); //keeps track of the current cycle
     private AtomicLong currentTick = new AtomicLong(0); //keeps track of the current tick
     private final int cycleDuration = 1000; //how many ticks will pass before the cycle increases
+    private final int serialValue; //a unique value assigned to each instance of the EventRunner upon creation
 
     private double tickDuration = render_tick; //uses the render tick speed by default (60/s)
 
@@ -41,7 +42,10 @@ public class EventRunner implements Runnable, EventConstants {
      Used to construct instances of the EventRunner.
      */
 
-    public EventRunner() {}
+    public EventRunner() {
+        serialValue = idNumber.getAndIncrement();
+        System.out.println("New EventRunner successfully created with ID " + serialValue);
+    }
 
     /*------------------------------------------------------------------------------------------------------------------
      Accessible methods.
@@ -60,6 +64,8 @@ public class EventRunner implements Runnable, EventConstants {
     public boolean isInterrupted() { return isInterrupted; }
     public boolean isPaused() { return isPaused; }
 
+    public int getSerialValue() { return serialValue; }
+
     public ArrayList<ScheduledEvent> getEvents(int key) { return eventList.get(key); }
     public ArrayList<ScheduledEvent> getAllEvents() { //returns all of the events
         ArrayList<ScheduledEvent> combined = new ArrayList<>();
@@ -67,6 +73,15 @@ public class EventRunner implements Runnable, EventConstants {
             combined.addAll(eventList.get(key));
         }
         return combined;
+    }
+
+    public void togglePause() {
+        if (isRunning) {
+            isPaused = !isPaused;
+            this.notify();
+        } else {
+            System.err.println("Attempted to pause EventRunner " + serialValue + " while it was inactive.");
+        }
     }
 
     public void reset() {
@@ -87,7 +102,7 @@ public class EventRunner implements Runnable, EventConstants {
 
     public void addEvent(int tick, ScheduledEvent event) {
         if (tick > cycleDuration) {
-            System.err.println("Attempted to insert an event into a tick outside of the EventRunner's cycle duration.");
+            System.err.println("Attempted to insert an event into a tick outside of the EventRunner's cycle duration in EventRunner " + serialValue + ".");
             return;
         }
         try {
@@ -97,9 +112,9 @@ public class EventRunner implements Runnable, EventConstants {
                 eventList.put(tick, new ArrayList<ScheduledEvent>());
                 eventList.get(tick).add(event);
             }
-            System.out.println("Event added successfully.");
+            System.out.println("Event added successfully to EventRunner " + serialValue + ".");
         } catch (Exception e) { //something done goofed
-            System.err.println("Error adding new event to EventRunner.");
+            System.err.println("Error adding new event to EventRunner " + serialValue + ".");
             e.printStackTrace();
         }
     }
@@ -118,7 +133,7 @@ public class EventRunner implements Runnable, EventConstants {
             threadPool.shutdown(); //shuts down the threading used by the EventRunner
             threadPool.awaitTermination(10, TimeUnit.SECONDS); //gives the thread pool 10 seconds to shutdown before forcing it to shutdown
         } catch (InterruptedException e) {
-            System.err.println("Thread pool shutdown sequence interrupted prematurely.");
+            System.err.println("EventRunner " + serialValue + " thread pool shutdown sequence interrupted prematurely.");
             e.printStackTrace();
         } finally {
             threadPool.shutdownNow(); //forces the thread pool to shutdown, even if tasks are still running
@@ -131,7 +146,7 @@ public class EventRunner implements Runnable, EventConstants {
             if (!isRunning) {
                 runEvents();
             } else {
-                System.err.println("EventRunner runSingleTick method cannot be invoked while the EventRunner is running.");
+                System.err.println("EventRunner " + serialValue + " runSingleTick method cannot be invoked while the EventRunner is running.");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -158,14 +173,8 @@ public class EventRunner implements Runnable, EventConstants {
             if (!isPaused) {
                 runEvents();
             } else {
-                //event runner is paused, keep checking for re-activation every 20ms
-                try {
-                    Thread.sleep(20);
-                    //TimeUnit.MILLISECONDS.sleep(20);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    break;
-                }
+                //event runner is paused, wait until given an okay to proceed
+                this.wait();
             }
             //all actions performed, repeat the process
         }
@@ -173,7 +182,7 @@ public class EventRunner implements Runnable, EventConstants {
         //event runner was interrupted artificially, was this done by an error - or by the user?
         isRunning = false;
         isInterrupted = false;
-        throw new InterruptedException("EventRunner cycle interrupted -- was this intentional?");
+        throw new InterruptedException("EventRunner " + serialValue + " cycle interrupted -- was this intentional?");
     }
 
     private synchronized boolean runEvents() throws InterruptedException {
