@@ -43,7 +43,7 @@ public class EventRunner implements Runnable, EventConstants {
      */
 
     public EventRunner(int cycleTime, double tickTime) {
-        serialValue = idNumber.getAndIncrement();
+        serialValue = idNumber.incrementAndGet();
         cycleDuration = cycleTime;
         tickDuration = tickTime;
         System.out.println("New EventRunner successfully created with ID " + serialValue);
@@ -116,7 +116,7 @@ public class EventRunner implements Runnable, EventConstants {
                 eventList.put(tick, new ArrayList<ScheduledEvent>());
                 eventList.get(tick).add(event);
             }
-            System.out.println("Event added successfully to EventRunner " + serialValue + ".");
+            System.out.println("Event ID#" + event.hashCode() + " added successfully to EventRunner " + serialValue + ".");
         } catch (Exception e) { //something done goofed
             System.err.println("Error adding new event to EventRunner " + serialValue + ".");
             e.printStackTrace();
@@ -218,13 +218,17 @@ public class EventRunner implements Runnable, EventConstants {
             }
         }
 
-        threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
-            try {
-                return booleanFuture.get();
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }).forEach(System.out::println); //TODO: Not properly printing results..
+        try {
+            threadPool.invokeAll(eventPool).stream().map(booleanFuture -> { //run the events
+                try {
+                    return booleanFuture.get();
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }).forEach(System.out::println);
+        } catch (RejectedExecutionException e) {
+            e.printStackTrace();
+        }
 
         //cycleend = System.currentTimeMillis();
         //System.out.println("Tick " + currentTick + " completed in " + (cycleend - cyclestart) + "ms");
@@ -245,23 +249,20 @@ public class EventRunner implements Runnable, EventConstants {
         if (events.size() > 0) {
             for (ScheduledEvent e : events) { //check the event roster
                 try {
-                    if (e.triggerConditionsMet()) {
-                        //conditions met, run the event
-                        //System.out.println("Conditions met for event " + e.toString());
-
-                        if (e.isThreaded()) {
-                            //event is to be given its own private thread (harder on CPU, faster)
+                    if (e.isThreaded()) {
+                        //event is to be given its own private thread (harder on CPU, faster)
+                        if (e.isConcurrent()) {
                             eventPool.add(e);
-                            //threadPool.submit(e);
                         } else {
-                            //run event in main EventRunner thread (better on CPU, slower)
-                            e.runEvent();
+                            threadPool.submit(e);
                         }
-
-                        if (e.isRemovedOnTriggered()) {
-                            //if the event is set to be removed once it has been triggered, remove it from the queue
-                            removed.add(e);
-                        }
+                    } else {
+                        //run event in main EventRunner thread (better on CPU, slower)
+                        e.runEvent();
+                    }
+                    if (e.isRemovedOnTriggered()) {
+                        //if the event is set to be removed once it has been triggered, remove it from the queue
+                        removed.add(e);
                     }
                 } catch (Exception p) {
                     p.printStackTrace();

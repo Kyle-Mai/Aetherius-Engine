@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ScheduledEvent implements Callable<Boolean> {
 
-    private static AtomicInteger eventCode = new AtomicInteger(1);
+    private static AtomicInteger eventCode = new AtomicInteger(0);
 
     private boolean removedOnTriggered; //Whether or not the event will be removed after it has been triggered.
     private boolean threaded; //Whether or not this event will use a private thread
@@ -29,9 +29,7 @@ public abstract class ScheduledEvent implements Callable<Boolean> {
         eventID = eventCode.incrementAndGet();
     }
 
-    public abstract boolean triggerConditions(); //The conditions that must be met for the event to trigger.
     public abstract void runEvent(); //The event's actions
-    public final boolean triggerConditionsMet() { return triggerConditions(); }
 
     public final void setRemovedOnTriggered(boolean b) { removedOnTriggered = b;}
     public final boolean isRemovedOnTriggered() { return removedOnTriggered; }
@@ -59,12 +57,13 @@ public abstract class ScheduledEvent implements Callable<Boolean> {
     
     public boolean equals(Object event) {
         try {
-            if (event instanceof ScheduledEvent && (ScheduledEvent)event.hashCode() == this.hashCode()) {
+            if (event instanceof ScheduledEvent && ((ScheduledEvent)event).hashCode() == this.hashCode()) {
                 return true;
             } else {
                 return false;
             }
         } catch (Exception e) { //Something went screwy when comparing - return a false just to be on the safe side
+            e.printStackTrace();
             return false;
         }
     }

@@ -1,6 +1,7 @@
 package test_implementation;
 
 import core.math.WeightedRandom;
+import core.run.ConditionalEvent;
 import core.run.EventRunner;
 import core.run.ScheduledEvent;
 import core.sfx.AudioPlayer;
@@ -18,7 +19,7 @@ public class Main {
     private static  MainInterface ui;
 
     public static void main(String[] args) {
-        testWR();
+        testUI();
     }
 
     private static void testWR() { //tests the functionality of the weighted random class
@@ -66,27 +67,17 @@ public class Main {
                 ui.getMonstersprite().getParent().repaint();
                 ui.getMonstersprite().getParent().revalidate();
             }
-
-            @Override
-            public boolean triggerConditions() {
-                return true;
-            }
         });
 
-        ScheduledEvent leeroy = new ScheduledEvent(true, false) {
-            @Override
-            public boolean triggerConditions() {
-                return true;
-            }
-
+        ScheduledEvent leeroy = new ScheduledEvent(true, true) {
             @Override
             public void runEvent() {
                 AudioPlayer test3 = new AudioPlayer();
-                test3.setAudioFolder(new File(System.getProperty("user.dir") + "/src/test_implementation/sfx/resources/"));
-                test3.addAudioFromFolder("leeroy.mp3");
+                test3.setAudioFolder(new File(System.getProperty("user.dir") + "/src/test_implementation/sfx/resources/music/"));
+                test3.addAudioFromFolder("run.mp3");
                 test3.setCloseOnComplete(true);
                 test3.setVolume(8);
-                new Thread(test3).start();
+                test3.execute();
             }
         };
         leeroy.setRemovedOnTriggered(true);
