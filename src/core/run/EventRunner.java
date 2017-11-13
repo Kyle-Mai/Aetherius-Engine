@@ -20,9 +20,9 @@ public class EventRunner implements Runnable, EventConstants {
 
     private final static AtomicInteger idNumber = new AtomicInteger(0);
 
-    private ArrayList<ScheduledEvent> removed = new ArrayList<>();
-    private List<ScheduledEvent> eventPool = new LinkedList<>();
-    private Hashtable<Integer, ArrayList<ScheduledEvent>> eventList = new Hashtable<>();
+    private final ArrayList<ScheduledEvent> removed = new ArrayList<>();
+    private final List<ScheduledEvent> eventPool = new LinkedList<>();
+    private final Hashtable<Integer, ArrayList<ScheduledEvent>> eventList = new Hashtable<>();
 
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -30,22 +30,28 @@ public class EventRunner implements Runnable, EventConstants {
     private boolean isInterrupted = false;
     private boolean isRunning = false;
 
-    private AtomicLong currentCycle = new AtomicLong(0); //keeps track of the current cycle
-    private AtomicLong currentTick = new AtomicLong(0); //keeps track of the current tick
-    private final int cycleDuration = 1000; //how many ticks will pass before the cycle increases
+    private final AtomicLong currentCycle = new AtomicLong(0); //keeps track of the current cycle
+    private final AtomicLong currentTick = new AtomicLong(0); //keeps track of the current tick
+    private final int cycleDuration; //how many ticks will pass before the cycle increases
     private final int serialValue; //a unique value assigned to each instance of the EventRunner upon creation
 
-    private double tickDuration = render_tick; //uses the render tick speed by default (60/s)
+    private double tickDuration; //uses the render tick speed by default (60/s)
 
     /*------------------------------------------------------------------------------------------------------------------
      Constructors.
      Used to construct instances of the EventRunner.
      */
 
-    public EventRunner() {
+    public EventRunner(int cycleTime, double tickTime) {
         serialValue = idNumber.getAndIncrement();
+        cycleDuration = cycleTime;
+        tickDuration = tickTime;
         System.out.println("New EventRunner successfully created with ID " + serialValue);
     }
+
+    public EventRunner(int cycleTime) { this(cycleTime, render_tick); }
+    public EventRunner(double tickTime) { this(1000, tickTime); }
+    public EventRunner() { this(1000, render_tick); }
 
     /*------------------------------------------------------------------------------------------------------------------
      Accessible methods.
@@ -63,8 +69,6 @@ public class EventRunner implements Runnable, EventConstants {
     public boolean isRunning() { return isRunning; }
     public boolean isInterrupted() { return isInterrupted; }
     public boolean isPaused() { return isPaused; }
-
-    public int getSerialValue() { return serialValue; }
 
     public ArrayList<ScheduledEvent> getEvents(int key) { return eventList.get(key); }
     public ArrayList<ScheduledEvent> getAllEvents() { //returns all of the events
@@ -159,6 +163,14 @@ public class EventRunner implements Runnable, EventConstants {
         }
     }
 
+    public boolean equals(Object o) {
+        return (o instanceof EventRunner && ((EventRunner) o).hashCode() == this.serialValue);
+    }
+
+    public int hashCode() {
+        return serialValue;
+    }
+
     /*------------------------------------------------------------------------------------------------------------------
      Core methods.
      Methods used by the EventRunner after run() has been called. These should NOT be touched or accessed individually.
@@ -187,14 +199,13 @@ public class EventRunner implements Runnable, EventConstants {
 
     private synchronized boolean runEvents() throws InterruptedException {
 
-        switch ((int) currentTick.get()) {
-            case cycleDuration:
-                currentCycle.incrementAndGet();
-                currentTick.set(0);
-                //System.out.println("Cycle " + currentCycle);
-                System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
-            default:
-                currentTick.incrementAndGet();
+        if (currentTick.intValue() >= cycleDuration) {
+            currentCycle.incrementAndGet();
+            currentTick.set(0);
+            //System.out.println("Cycle " + currentCycle);
+            System.gc(); //tells the garbage collector to consider cleaning, just to ensure there's no major memory overflow between cycles
+        } else {
+            currentTick.incrementAndGet();
         }
 
         //cyclestart = System.currentTimeMillis();
