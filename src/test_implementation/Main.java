@@ -8,6 +8,7 @@ import core.sfx.AudioPlayer;
 import test_implementation.gui.MainInterface;
 import test_implementation.sfx.AudioLoader;
 
+import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -82,6 +83,38 @@ public class Main {
         };
         leeroy.setRemovedOnTriggered(true);
         event.addEvent(10, leeroy);
+
+        event.addEvent(200, new ConditionalEvent(true, false) {
+            @Override
+            public boolean triggerConditions() {
+                if (event.getCurrentCycle().intValue() > 0) {
+                    if (event.getCurrentTick().intValue() > 200) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void runEvent() {
+                ui.getHeader().setText("Conditional Event");
+            }
+        });
+
+        event.addEvent(400, new ConditionalEvent(true, false) {
+            @Override
+            public boolean triggerConditions() {
+                if (event.getCurrentCycle().intValue() > 1) {
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void runEvent() {
+                ui.getHeader().setForeground(Color.WHITE);
+            }
+        });
 
 
         Thread main = new Thread(event);

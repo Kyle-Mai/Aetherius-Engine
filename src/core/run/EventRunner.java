@@ -61,8 +61,8 @@ public class EventRunner implements Runnable, EventConstants {
     public double getTickDuration() { return tickDuration; }
     public void setTickDuration(double d) { tickDuration = d; }
 
-    public long getCurrentCycle() { return currentCycle.get(); }
-    public long getCurrentTick() { return currentTick.get(); }
+    public AtomicLong getCurrentCycle() { return currentCycle; }
+    public AtomicLong getCurrentTick() { return currentTick; }
 
     public int getCycleDuration() { return cycleDuration; }
 
@@ -124,6 +124,7 @@ public class EventRunner implements Runnable, EventConstants {
     }
 
     public void dump(boolean preserveCycle) {
+        interrupt();
         eventList.clear();
         if (!preserveCycle) {
             reset();
