@@ -1,6 +1,7 @@
 package test_implementation;
 
 import core.math.WeightedRandom;
+import core.renderer.Raster;
 import core.run.ConditionalEvent;
 import core.run.EventRunner;
 import core.run.ScheduledEvent;
@@ -12,6 +13,7 @@ import java.awt.*;
 import java.io.File;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -20,7 +22,12 @@ public class Main {
     private static  MainInterface ui;
 
     public static void main(String[] args) {
-        testUI();
+        testRaster();
+    }
+
+    private static void testRaster() {
+        Raster rasterTest = new Raster();
+        rasterTest.setup();
     }
 
     private static void testWR() { //tests the functionality of the weighted random class
