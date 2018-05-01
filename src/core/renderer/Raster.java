@@ -14,12 +14,12 @@ public class Raster {
 
     Graphics g;
     int a = 0;
-    Point3 camera = new Point3(-40, -20, -105);
+    Point3 camera = new Point3(-3, -2, -7);
     Orientation3 camrot = new Orientation3(Math.toRadians(0), Math.toRadians(25), Math.toRadians(0));
 
     private ArrayList<Vertice> verts = new ArrayList<>();
     int fovlevel = 500;
-    Point3 fov = new Point3(0, 0, 400);
+    Point3 fov = new Point3(0, 0, 700);
     //Vector3 fovsc = new Vector3(25, 25, 500);
     double viewangle = 2*Math.atan(1/fov.getPosZ());
 
@@ -55,14 +55,14 @@ public class Raster {
 
         Object3 cube = new Object3(
                 new Vector3(0, 0, 0),
-                new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1)), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1))),
-                new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1)), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1))),
-                new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1)), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1))),
-                new Face(Color.green, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(1, 1, 0)), new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(1, 1, 0))),
-                new Face(Color.darkGray, new Vertice(new Point3(0, 1, 0), new Point3(0, 1, 1), new Point3(1, 1, 1)), new Vertice(new Point3(0, 1, 0), new Point3(1, 1, 0), new Point3(1, 1, 1))),
-                new Face(Color.CYAN, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(0, 0, 0)), new Vertice(new Point3(1, 0, 0), new Point3(0, 0, 0), new Point3(1, 0, 1)))
+                new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1), 1), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1), -1)),
+                new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1), 1), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1), -1)),
+                new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1), 1)),
+                new Face(Color.green, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(1, 1, 0), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(1, 1, 0), 1)),
+                new Face(Color.darkGray, new Vertice(new Point3(0, 1, 0), new Point3(0, 1, 1), new Point3(1, 1, 0), 1), new Vertice(new Point3(1, 1, 1), new Point3(1, 1, 0), new Point3(0, 1, 1), 1)),
+                new Face(Color.CYAN, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(0, 0, 1), 1), new Vertice(new Point3(1, 0, 1), new Point3(0, 0, 1), new Point3(1, 0, 0), 1))
         );
-        cube.scale(new Vector3(50, 50, 50));
+        cube.scale(new Vector3(2, 2, 2));
         objects.add(cube);
 
         System.out.println("Completed setup");
@@ -132,8 +132,10 @@ public class Raster {
                 zmin = Math.min(zmin, (int)dz);
             }
             poly.setColor(f.getColor());
-            Vector3 temp = new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ());
-            if (Vectors.scale(new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ()), v.getNormal()).getMagnitude() >= 0) {
+            //Vector3 temp = new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ());
+            //System.out.println(Vectors.scale(new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ()), v.getNormal()).getPointB().getPosY());
+            //System.out.println(Vectors.scale(new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ()), v.getNormal()).getMagnitude());
+            if (Vectors.dotProduct(new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ()), v.getNormal()) >= 0) {
                 poly.setVisible(false);
             }
 
@@ -151,8 +153,8 @@ public class Raster {
                 e.printStackTrace();
             }
             a += 1;
-            //camera = new Vector3(25 * Math.cos(Math.toRadians(a)) + 0, 70 * Math.sin(Math.toRadians(a)),35 * Math.sin(Math.toRadians(a)) - 125);
-            //camrot = new Orientation3(Math.toRadians(a * 0.8), Math.toRadians(a), Math.toRadians(a)); // Y X Z
+            camera = new Point3(6 * Math.cos(Math.toRadians(a)) + 0, 3*Math.cos(Math.toRadians(a)) + 1,-6 * Math.sin(Math.toRadians(a)) - 0);
+            camrot = new Orientation3(Math.toRadians(0), Math.toRadians(180) + Math.atan2(camera.getPosX() - 1, camera.getPosZ() - 1), 0); // Y X Z
             //objects.get(0).scale(new Vector3(40 * Math.cos(Math.toRadians(a)) + 50, 25 * Math.sin(Math.toRadians(a)) + 50,25 * Math.sin(Math.toRadians(a)) + 50));
 
             for (Object3 obj : objects) {

@@ -11,6 +11,13 @@ public class Vertice implements VectorConstants, RenderConstants {
         vectors[2] = new Vector3(o, p3);
     }
 
+    public Vertice(Point3 o, Point3 p2, Point3 p3, int normalOrient) {
+        vectors[0] = new Vector3(p2, p3);
+        vectors[1] = new Vector3(o, p2);
+        vectors[2] = new Vector3(o, p3);
+        normalOrientation = normalOrient;
+    }
+
     public Vertice(Point3 o, Vector3 v) {
         vectors[0] = v;
         vectors[1] = new Vector3(o, v.getPointA());
@@ -32,11 +39,16 @@ public class Vertice implements VectorConstants, RenderConstants {
     public Vector3 getUnitNormal() { //returns a unit vector measure of the vertice's normal
         Vector3 vec = vectors[0];
         Point3 origin = getOrigin();
+        Vector3 ntemp = new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
         switch (normalOrientation) {
             case NORMAL_L:
-                return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
+                Vector3 ntemp2 = new Vector3(-1*(ntemp.getPointB().getPosX()/ntemp.getMagnitude()), -1*(ntemp.getPointB().getPosY()/ntemp.getMagnitude()), -1*(ntemp.getPointB().getPosZ()/ntemp.getMagnitude()));
+                return ntemp2;
+                //return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
             case NORMAL_R:
-                return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
+                Vector3 ntemp3 = new Vector3(ntemp.getPointB().getPosX()/ntemp.getMagnitude(), ntemp.getPointB().getPosY()/ntemp.getMagnitude(), ntemp.getPointB().getPosZ()/ntemp.getMagnitude());
+                return ntemp3;
+                //return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
             default:
                 throw new IllegalArgumentException("Normal orientation data invalid.");
         }

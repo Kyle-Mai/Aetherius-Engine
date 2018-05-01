@@ -50,7 +50,8 @@ public class Vector3 implements VectorConstants {
     }
     public double getMagnitude() {
         //return (p2.getPosX()*p1.getPosX()) + (p2.getPosY()*p1.getPosY()) + (p2.getPosZ()*p1.getPosZ());
-        return Math.sqrt(Math.exp(getUnitVector().getPointB().getPosX()) + Math.exp(getUnitVector().getPointB().getPosY()) + Math.exp(getUnitVector().getPointB().getPosZ()));
+        //System.out.println(getUnitVector().getPointB().getPosX()*getUnitVector().getPointB().getPosX());
+        return Math.sqrt((getUnitVector().getPointB().getPosX()*getUnitVector().getPointB().getPosX()) + (getUnitVector().getPointB().getPosY()*getUnitVector().getPointB().getPosY()) + (getUnitVector().getPointB().getPosZ()*getUnitVector().getPointB().getPosZ()));
     }
 
 }
