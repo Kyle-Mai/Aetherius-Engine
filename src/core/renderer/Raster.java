@@ -65,6 +65,32 @@ public class Raster {
         cube.scale(new Vector3(2, 2, 2));
         objects.add(cube);
 
+        Object3 cube2 = new Object3(
+                new Vector3(0, 0, 0),
+                new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1), 1), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1), -1)),
+                new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1), 1), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1), -1)),
+                new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1), 1)),
+                new Face(Color.green, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(1, 1, 0), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(1, 1, 0), 1)),
+                new Face(Color.darkGray, new Vertice(new Point3(0, 1, 0), new Point3(0, 1, 1), new Point3(1, 1, 0), 1), new Vertice(new Point3(1, 1, 1), new Point3(1, 1, 0), new Point3(0, 1, 1), 1)),
+                new Face(Color.CYAN, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(0, 0, 1), 1), new Vertice(new Point3(1, 0, 1), new Point3(0, 0, 1), new Point3(1, 0, 0), 1))
+        );
+        cube2.scale(new Vector3(1.4, 1.4, 1.4));
+        cube2.translate(new Vector3(3, 0, 3));
+        objects.add(cube2);
+
+        Object3 cube3 = new Object3(
+                new Vector3(0, 0, 0),
+                new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1), 1), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1), -1)),
+                new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1), 1), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1), -1)),
+                new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1), 1)),
+                new Face(Color.green, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(1, 1, 0), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(1, 1, 0), 1)),
+                new Face(Color.darkGray, new Vertice(new Point3(0, 1, 0), new Point3(0, 1, 1), new Point3(1, 1, 0), 1), new Vertice(new Point3(1, 1, 1), new Point3(1, 1, 0), new Point3(0, 1, 1), 1)),
+                new Face(Color.CYAN, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(0, 0, 1), 1), new Vertice(new Point3(1, 0, 1), new Point3(0, 0, 1), new Point3(1, 0, 0), 1))
+        );
+        cube3.scale(new Vector3(1, 4, 3));
+        cube3.translate(new Vector3(5, -2, -4));
+        objects.add(cube3);
+
         System.out.println("Completed setup");
         draw();
         anim();

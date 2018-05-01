@@ -42,13 +42,9 @@ public class Vertice implements VectorConstants, RenderConstants {
         Vector3 ntemp = new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
         switch (normalOrientation) {
             case NORMAL_L:
-                Vector3 ntemp2 = new Vector3(-1*(ntemp.getPointB().getPosX()/ntemp.getMagnitude()), -1*(ntemp.getPointB().getPosY()/ntemp.getMagnitude()), -1*(ntemp.getPointB().getPosZ()/ntemp.getMagnitude()));
-                return ntemp2;
-                //return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
-            case NORMAL_R:
-                Vector3 ntemp3 = new Vector3(ntemp.getPointB().getPosX()/ntemp.getMagnitude(), ntemp.getPointB().getPosY()/ntemp.getMagnitude(), ntemp.getPointB().getPosZ()/ntemp.getMagnitude());
-                return ntemp3;
-                //return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
+                return new Vector3(-1*(ntemp.getPointB().getPosX()/ntemp.getMagnitude()), -1*(ntemp.getPointB().getPosY()/ntemp.getMagnitude()), -1*(ntemp.getPointB().getPosZ()/ntemp.getMagnitude()));
+           case NORMAL_R:
+                return new Vector3(ntemp.getPointB().getPosX()/ntemp.getMagnitude(), ntemp.getPointB().getPosY()/ntemp.getMagnitude(), ntemp.getPointB().getPosZ()/ntemp.getMagnitude());
             default:
                 throw new IllegalArgumentException("Normal orientation data invalid.");
         }
@@ -58,6 +54,12 @@ public class Vertice implements VectorConstants, RenderConstants {
         vectors[0] = Vectors.scale(vectors[0], v);
         vectors[1] = Vectors.scale(vectors[1], v);
         vectors[2] = Vectors.scale(vectors[2], v);
+    }
+
+    public void translate(Vector3 tr) {
+        vectors[0] = Vectors.translate(vectors[0], tr);
+        vectors[1] = Vectors.translate(vectors[1], tr);
+        vectors[2] = Vectors.translate(vectors[2], tr);
     }
 
     public int getNormalOrientation() { return normalOrientation; }

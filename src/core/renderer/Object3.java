@@ -34,6 +34,14 @@ public class Object3 implements Renderable {
         }
     }
 
+    public void translate(Vector3 tr) {
+        for (Face f : faces) {
+            for (Vertice v : f.getComponentVectors()) {
+                v.translate(tr);
+            }
+        }
+    }
+
     public ArrayList<Face> getFaces() { return faces; }
     public void setOrigin(Vector3 o) { origin = o; }
     public Vector3 getOrigin() { return origin; }
