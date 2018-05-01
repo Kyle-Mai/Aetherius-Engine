@@ -14,12 +14,12 @@ public class Raster {
 
     Graphics g;
     int a = 0;
-    Vector3 camera = new Vector3(-40, -40, -105);
-    Orientation camrot = new Orientation(Math.toRadians(0), Math.toRadians(20), Math.toRadians(0));
+    Point3 camera = new Point3(-40, -20, -105);
+    Orientation3 camrot = new Orientation3(Math.toRadians(0), Math.toRadians(25), Math.toRadians(0));
 
     private ArrayList<Vertice> verts = new ArrayList<>();
     int fovlevel = 500;
-    Vector3 fov = new Vector3(0, 0, 400);
+    Point3 fov = new Point3(0, 0, 400);
     //Vector3 fovsc = new Vector3(25, 25, 500);
     double viewangle = 2*Math.atan(1/fov.getPosZ());
 
@@ -52,58 +52,18 @@ public class Raster {
         label.setLocation(0, 0);
         frame.setVisible(true);
         label.setVisible(true);
-        //verts.add(new Vertice(new Vector3(0, 0, 50), new Vector3(50, 0, 50), new Vector3(0, 0, 0)));
-        //verts.add(new Vertice(new Vector3(0, 0, 0), new Vector3(50, 0, 0), new Vector3(50, 0, 50)));
-        //verts.add(new Vertice(new Vector3(50, 0, 0), new Vector3(50, 50, 0), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(50, 0, 0), new Vector3(50, 0, 50), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 0, 50), new Vector3(50, 0, 50), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 0, 50), new Vector3(0, 50, 50), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 0, 0), new Vector3(0, 50, 0), new Vector3(0, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 0, 0), new Vector3(0, 0, 50), new Vector3(0, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 0, 50), new Vector3(50, 0, 50), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 0, 50), new Vector3(0, 50, 50), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 50, 0), new Vector3(0, 50, 50), new Vector3(50, 50, 50)));
-        //verts.add(new Vertice(new Vector3(0, 50, 0), new Vector3(50, 50, 0), new Vector3(50, 50, 50)));
 
         Object3 cube = new Object3(
                 new Vector3(0, 0, 0),
-                new Face(Color.RED, new Vertice(new Vector3(1, 0, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1)), new Vertice(new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(1, 1, 1))),
-                new Face(Color.ORANGE, new Vertice(new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 1, 1)), new Vertice(new Vector3(0, 0, 1), new Vector3(0, 1, 1), new Vector3(1, 1, 1))),
-                new Face(Color.black, new Vertice(new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 1)), new Vertice(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 1))),
-                new Face(Color.green, new Vertice(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 1, 0)), new Vertice(new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0))),
-                new Face(Color.darkGray, new Vertice(new Vector3(0, 1, 0), new Vector3(0, 1, 1), new Vector3(1, 1, 1)), new Vertice(new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1))),
-                new Face(Color.CYAN, new Vertice(new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(0, 0, 0)), new Vertice(new Vector3(1, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 1)))
+                new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1)), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1))),
+                new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1)), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1))),
+                new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1)), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1))),
+                new Face(Color.green, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(1, 1, 0)), new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(1, 1, 0))),
+                new Face(Color.darkGray, new Vertice(new Point3(0, 1, 0), new Point3(0, 1, 1), new Point3(1, 1, 1)), new Vertice(new Point3(0, 1, 0), new Point3(1, 1, 0), new Point3(1, 1, 1))),
+                new Face(Color.CYAN, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(0, 0, 0)), new Vertice(new Point3(1, 0, 0), new Point3(0, 0, 0), new Point3(1, 0, 1)))
         );
         cube.scale(new Vector3(50, 50, 50));
         objects.add(cube);
-
-        Object3 cube2 = new Object3(
-                new Vector3(0, 0, 0),
-                new Face(Color.RED, new Vertice(new Vector3(1, 0, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1)), new Vertice(new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(1, 1, 1))),
-                new Face(Color.ORANGE, new Vertice(new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 1, 1)), new Vertice(new Vector3(0, 0, 1), new Vector3(0, 1, 1), new Vector3(1, 1, 1))),
-                new Face(Color.black, new Vertice(new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 1)), new Vertice(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 1))),
-                new Face(Color.green, new Vertice(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 1, 0)), new Vertice(new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0))),
-                new Face(Color.darkGray, new Vertice(new Vector3(0, 1, 0), new Vector3(0, 1, 1), new Vector3(1, 1, 1)), new Vertice(new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1))),
-                new Face(Color.CYAN, new Vertice(new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(0, 0, 0)), new Vertice(new Vector3(1, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 1)))
-        );
-        cube2.scale(new Vector3(25, 25, 25));
-        cube2.translate(new Vector3(-60, 0, 0));
-        objects.add(cube2);
-
-        /*
-        //right
-        faces.add(new Face(Color.RED, new Vertice(new Vector3(50, 0, 0), new Vector3(50, 50, 0), new Vector3(50, 50, 50), Color.RED), new Vertice(new Vector3(50, 0, 0), new Vector3(50, 0, 50), new Vector3(50, 50, 50), Color.red)));
-        //front
-        faces.add(new Face(Color.ORANGE, new Vertice(new Vector3(0, 0, 50), new Vector3(50, 0, 50), new Vector3(50, 50, 50), Color.ORANGE), new Vertice(new Vector3(0, 0, 50), new Vector3(0, 50, 50), new Vector3(50, 50, 50), Color.ORANGE)));
-        //left
-        faces.add(new Face(Color.black, new Vertice(new Vector3(0, 0, 0), new Vector3(0, 50, 0), new Vector3(0, 50, 50), Color.black), new Vertice(new Vector3(0, 0, 0), new Vector3(0, 0, 50), new Vector3(0, 50, 50), Color.black)));
-        //back
-        faces.add(new Face(Color.green, new Vertice(new Vector3(0, 0, 0), new Vector3(50, 0, 0), new Vector3(50, 50, 0), Color.green), new Vertice(new Vector3(0, 0, 0), new Vector3(0, 50, 0), new Vector3(50, 50, 0), Color.green)));
-        //bottom
-        faces.add(new Face(Color.darkGray, new Vertice(new Vector3(0, 50, 0), new Vector3(0, 50, 50), new Vector3(50, 50, 50), Color.darkGray), new Vertice(new Vector3(0, 50, 0), new Vector3(50, 50, 0), new Vector3(50, 50, 50), Color.darkGray)));
-        //top
-        faces.add(new Face(Color.CYAN, new Vertice(new Vector3(0, 0, 50), new Vector3(50, 0, 50), new Vector3(0, 0, 0), Color.cyan), new Vertice(new Vector3(0, 0, 0), new Vector3(50, 0, 0), new Vector3(50, 0, 50), Color.cyan, -1)));
-        */
 
         System.out.println("Completed setup");
         draw();
@@ -139,8 +99,8 @@ public class Raster {
         int yy = frame.getHeight() / 2;
         int zmax = 0, zmin = 0;
 
-        for (int i = 0; i < f.getComponents().size(); i++) {
-            Vertice v = f.getComponents().get(i);
+        for (int i = 0; i < f.getComponentVectors().size(); i++) {
+            Vertice v = f.getComponentVectors().get(i);
             Polygon3 poly = new Polygon3();
             rendered.clear();
             x = v.getPointA().getPosX() - camera.getPosX();
@@ -172,7 +132,12 @@ public class Raster {
                 zmin = Math.min(zmin, (int)dz);
             }
             poly.setColor(f.getColor());
-            poly.setVisible(f.isVisible());
+            Vector3 temp = new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ());
+            if (Vectors.scale(new Vector3(v.getOrigin().getPosX()-camera.getPosX(), v.getOrigin().getPosY()-camera.getPosY(), v.getOrigin().getPosZ()-camera.getPosZ()), v.getNormal()).getMagnitude() >= 0) {
+                poly.setVisible(false);
+            }
+
+            //poly.setVisible(f.isVisible());
             poly.setZ((zmax + zmin) / 2);
             polys.add(poly);
         }
@@ -187,23 +152,11 @@ public class Raster {
             }
             a += 1;
             //camera = new Vector3(25 * Math.cos(Math.toRadians(a)) + 0, 70 * Math.sin(Math.toRadians(a)),35 * Math.sin(Math.toRadians(a)) - 125);
-            //camrot = new Orientation(Math.toRadians(a * 0.8), Math.toRadians(a), Math.toRadians(a)); // Y X Z
+            //camrot = new Orientation3(Math.toRadians(a * 0.8), Math.toRadians(a), Math.toRadians(a)); // Y X Z
             //objects.get(0).scale(new Vector3(40 * Math.cos(Math.toRadians(a)) + 50, 25 * Math.sin(Math.toRadians(a)) + 50,25 * Math.sin(Math.toRadians(a)) + 50));
 
             for (Object3 obj : objects) {
                 for (Face f : obj.getFaces()) {
-                    for (Vertice c : f.getComponents()) {
-                        System.out.println("------");
-                        System.out.println(Math.sqrt((Math.exp(c.getNormal().getPosX() - camera.getPosX())) + (Math.exp(c.getNormal().getPosY() - camera.getPosY())) + (Math.exp(c.getNormal().getPosZ() - camera.getPosZ()))) + " " + Math.sqrt((Math.exp(c.getPointA().getPosX() - camera.getPosX())) + (Math.exp(c.getPointA().getPosY() - camera.getPosY())) + (Math.exp(c.getPointA().getPosZ() - camera.getPosZ()))) + " " + f.getColor());
-                        if (Math.sqrt((Math.exp(c.getNormal().getPosX() - camera.getPosX())) + (Math.exp(c.getNormal().getPosY() - camera.getPosY())) + (Math.exp(c.getNormal().getPosZ() - camera.getPosZ()))) > Math.sqrt((Math.exp(c.getPointA().getPosX() - camera.getPosX())) + (Math.exp(c.getPointA().getPosY() - camera.getPosY())) + (Math.exp(c.getPointA().getPosZ() - camera.getPosZ())))) {
-                            c.setVisible(false);
-                            f.setVisible(false);
-                            System.out.println("NOT VISIBLE");
-                        } else {
-                            c.setVisible(true);
-                            f.setVisible(true);
-                        }
-                    }
                     render(f);
                 }
             }
@@ -258,7 +211,7 @@ public class Raster {
             g.setColor(Color.BLACK);
             System.out.println("START RENDER CYCLE");
             while (!polys.isEmpty()) {
-                //System.out.println(polys.get(i).getBounds().height + " " + polys.get(i).getBounds().width);
+                //System.out.println(polys.peek().getBounds().height + " " + polys.peek().getBounds().width);
                 //System.out.println(Math.atan2(polys.get(i).getBounds().height, polys.get(i).getBounds().width));
                 try {
                     g.setColor(polys.peek().getColor());

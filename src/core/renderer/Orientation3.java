@@ -1,14 +1,13 @@
 package core.renderer;
 
-public class Orientation {
+public class Orientation3 {
 
     private double rotx, roty, rotz;
 
-    public Orientation(double X, double Y, double Z) {
+    public Orientation3(double X, double Y, double Z) {
         rotx = X;
         roty = Y;
         rotz = Z;
-
     }
 
     public double getRotX() { return rotx; }

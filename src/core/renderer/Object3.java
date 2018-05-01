@@ -28,20 +28,8 @@ public class Object3 implements Renderable {
 
     public void scale(Vector3 sc) {
         for (Face f : faces) {
-            for (Vertice v : f.components) {
-                for (Vector3 vec : v.getPoints()) {
-                    vec.scale(sc);
-                }
-            }
-        }
-    }
-
-    public void translate(Vector3 tr) {
-        for (Face f : faces) {
-            for (Vertice v : f.components) {
-                for (Vector3 vec : v.getPoints()) {
-                    vec.translate(tr);
-                }
+            for (Vertice v : f.getComponentVectors()) {
+                v.scale(sc);
             }
         }
     }

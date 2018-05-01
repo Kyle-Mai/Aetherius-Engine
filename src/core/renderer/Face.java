@@ -4,39 +4,22 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Face implements Renderable {
+public class Face {
 
-    private Color color;
-    public ArrayList<Vertice> components = new ArrayList<>();
-    private boolean isVisible = true;
+    private Color color = Color.MAGENTA; //defaults to pink for objects without an overriding color/texture
+    private ArrayList<Vertice> componentVectors = new ArrayList<>();
+
+    public Face(Vertice...t) {
+        componentVectors.addAll(Arrays.asList(t));
+    }
 
     public Face(Color c, Vertice...t) {
         color = c;
-        components.addAll(Arrays.asList(t));
-    }
-
-    public void scale(Vector3 sc) {
-        for (Vertice v : components) {
-            for (Vector3 vec : v.getPoints()) {
-                vec.scale(sc);
-            }
-        }
-    }
-
-    public void translate(Vector3 tr) {
-        for (Vertice v : components) {
-            for (Vector3 vec : v.getPoints()) {
-                vec.translate(tr);
-            }
-        }
+        componentVectors.addAll(Arrays.asList(t));
     }
 
     public Color getColor() { return color; }
-    public ArrayList<Vertice> getComponents() { return components; }
-    public void setVisible(boolean t) { isVisible = t; }
-
-    public boolean isVisible() {
-        return isVisible;
-    }
+    public ArrayList<Vertice> getComponentVectors() { return componentVectors; }
+    public void setComponentVectors(ArrayList<Vertice> v) { componentVectors = v; }
 
 }

@@ -1,87 +1,71 @@
 package core.renderer;
 
-import java.awt.*;
+public class Vertice implements VectorConstants, RenderConstants {
 
-public class Vertice implements Renderable, RenderConstants {
+    private int normalOrientation = NORMAL_R;
+    private Vector3[] vectors = new Vector3[3];
 
-    private Vector3 pointA, pointB, pointC, normal;
-    private Vector3[] points = new Vector3[3];
-    private boolean isVisible = true;
-    private Color color;
-
-    public Vertice(Vector3 a, Vector3 b, Vector3 c) {
-        pointA = a;
-        pointB = b;
-        pointC = c;
-        color = Color.BLACK;
-        assignNormals(NORMAL_R);
+    public Vertice(Point3 o, Point3 p2, Point3 p3) {
+        vectors[0] = new Vector3(p2, p3);
+        vectors[1] = new Vector3(o, p2);
+        vectors[2] = new Vector3(o, p3);
     }
 
-    public Vertice(Vector3 a, Vector3 b, Vector3 c, Color clr) {
-        pointA = a;
-        pointB = b;
-        pointC = c;
-        color = clr;
-        assignNormals(NORMAL_R);
+    public Vertice(Point3 o, Vector3 v) {
+        vectors[0] = v;
+        vectors[1] = new Vector3(o, v.getPointA());
+        vectors[2] = new Vector3(o, v.getPointB());
     }
 
-    public Vertice(Vector3 a, Vector3 b, Vector3 c, int norm) {
-        pointA = a;
-        pointB = b;
-        pointC = c;
-        color = Color.BLACK;
-        assignNormals(norm);
+    public Vertice(Point3 o, Vector3 v, int normalOrient) {
+        vectors[0] = v;
+        vectors[1] = new Vector3(o, v.getPointA());
+        vectors[2] = new Vector3(o, v.getPointB());
+        normalOrientation = normalOrient;
     }
 
-    public Vertice(Vector3 a, Vector3 b, Vector3 c, Color clr, int norm) {
-        pointA = a;
-        pointB = b;
-        pointC = c;
-        color = clr;
-        assignNormals(norm);
+    public Vector3 getNormal() {
+        Vector3 temp = getUnitNormal();
+        return new Vector3(getOrigin(), new Point3(temp.getPointB().getPosX()+getOrigin().getPosX(), temp.getPointB().getPosY()+getOrigin().getPosY(), temp.getPointB().getPosZ()+getOrigin().getPosZ()));
     }
 
-    private void assignNormals(int norm) {
-        points[0] = pointA;
-        points[1] = pointB;
-        points[2] = pointC;
-        switch (norm) {
+    public Vector3 getUnitNormal() { //returns a unit vector measure of the vertice's normal
+        Vector3 vec = vectors[0];
+        Point3 origin = getOrigin();
+        switch (normalOrientation) {
             case NORMAL_L:
-                //normal = new Vector3(((pointB.getPosY()-pointA.getPosY())*(pointC.getPosZ()-pointA.getPosZ())) - ((pointB.getPosZ()-pointA.getPosZ())*(pointC.getPosY()-pointA.getPosY())), ((pointB.getPosZ()-pointA.getPosZ())*(pointC.getPosX()-pointA.getPosX())) - ((pointB.getPosX()-pointA.getPosX())*(pointC.getPosZ()-pointA.getPosZ())), ((pointB.getPosX()-pointA.getPosX())*(pointC.getPosY()-pointA.getPosY())) - ((pointB.getPosY()-pointA.getPosY())*(pointC.getPosX()-pointA.getPosX())));
-                normal = new Vector3(-1*((pointB.getPosY()*pointC.getPosZ()) - (pointB.getPosZ()*pointC.getPosY())), -1*((pointB.getPosZ()*pointC.getPosX()) - (pointB.getPosX()*pointC.getPosZ())), -1*((pointB.getPosX()*pointC.getPosY()) - (pointB.getPosY()*pointC.getPosX())));
-                return;
+                return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
             case NORMAL_R:
-                normal = new Vector3(((pointB.getPosY()*pointC.getPosZ()) - (pointB.getPosZ()*pointC.getPosY())),  ((pointB.getPosZ()*pointC.getPosX()) - (pointB.getPosX()*pointC.getPosZ())), ((pointB.getPosX()*pointC.getPosY()) - (pointB.getPosY()*pointC.getPosX())));
-                return;
+                return new Vector3(new Point3(((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosZ()-origin.getPosZ())) - ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosY()-origin.getPosY())), ((vec.getPointA().getPosZ()-origin.getPosZ())*(vec.getPointB().getPosX()-origin.getPosX())) - ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosZ()-origin.getPosZ())), ((vec.getPointA().getPosX()-origin.getPosX())*(vec.getPointB().getPosY()-origin.getPosY())) - ((vec.getPointA().getPosY()-origin.getPosY())*(vec.getPointB().getPosX()-origin.getPosX()))));
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Normal orientation data invalid.");
         }
     }
 
-    public void scale(Vector3 sc) {
-        for (Vector3 vec : getPoints()) {
-            vec.scale(sc);
-        }
+    public void scale(Vector3 v) {
+        vectors[0] = Vectors.scale(vectors[0], v);
+        vectors[1] = Vectors.scale(vectors[1], v);
+        vectors[2] = Vectors.scale(vectors[2], v);
     }
 
-    public void translate(Vector3 tr) {
-        for (Vector3 vec : getPoints()) {
-            vec.translate(tr);
-        }
+    public int getNormalOrientation() { return normalOrientation; }
+    public void setNormalOrientation(int n) { normalOrientation = n; }
+
+    public Point3 getOrigin() {
+        return vectors[1].getPointA();
     }
 
-    public Vector3 getPointA() { return pointA; }
-    public Vector3 getPointB() { return pointB; }
-    public Vector3 getPointC() { return  pointC; }
-    public Vector3[] getPoints() { return points; }
-    public Vector3 getNormal() { return normal; }
-    public double getNormalMagnitude() {
-        return Math.sqrt((Math.exp(normal.getPosX() - pointA.getPosX())) + (Math.exp(normal.getPosY() - pointA.getPosY())) + (Math.exp(normal.getPosZ() - pointA.getPosZ())));
-    }
+    public Vector3[] getVectors() { return vectors; }
 
-    public void setVisible(boolean t) { isVisible = t; }
-    public boolean isVisible() {
-        return isVisible;
+    public Point3 getPointA() { return vectors[0].getPointA(); }
+    public Point3 getPointB() { return vectors[0].getPointB(); }
+    public Point3 getPointC() { return getOrigin(); }
+    public Point3[] getPoints() {
+        Point3[] temp = new Point3[3];
+        temp[0] = getOrigin();
+        temp[1] = vectors[0].getPointA();
+        temp[2] = vectors[0].getPointB();
+        return temp;
     }
 
 }

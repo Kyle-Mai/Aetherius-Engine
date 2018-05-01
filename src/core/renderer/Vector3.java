@@ -1,39 +1,56 @@
 package core.renderer;
 
-public class Vector3 {
+/**
+ * Vector in 3-space defined by either two points (POSITION_VECTOR), or one point (UNIT_VECTOR).
+ */
 
-    private double posx,posy,posz, posx2, posy2, posz2;
-    private double[] points = {posx, posy, posz};
+public class Vector3 implements VectorConstants {
+
+    private Point3 p1, p2;
+    private int type;
 
     public Vector3(double x, double y, double z) {
-        posx = x;
-        posy = y;
-        posz = z;
-        posx2 = x;
-        posy2 = y;
-        posz2 = z;
+        type = UNIT_VECTOR;
+        p1 = new Point3(0, 0, 0);
+        p2 = new Point3(x, y, z);
     }
 
-    public double getPosX() { return posx; }
-    public double getPosY() { return posy; }
-    public double getPosZ() { return posz; }
-    public double[] getPoints() { return points; }
-    public void setPosX(double x) { posx = x; }
-    public void setPosY(double y) { posy = y; }
-    public void setPosZ(double z) { posz = z; }
-
-    public void scale(Vector3 sc) {
-        Vector3 temp = Vectors.scale(new Vector3(posx2, posy2, posz2), sc);
-        setPosX(temp.getPosX());
-        setPosY(temp.getPosY());
-        setPosZ(temp.getPosZ());
+    public Vector3(Vector3 c) {
+        type = c.getType();
+        p1 = c.getPointA();
+        p2 = c.getPointB();
     }
 
-    public void translate(Vector3 tr) {
-        Vector3 temp = Vectors.translate(this, tr);
-        setPosX(temp.getPosX());
-        setPosY(temp.getPosY());
-        setPosZ(temp.getPosZ());
+    public Vector3(Point3 a, Point3 b) {
+        type = POSITION_VECTOR;
+        p1 = a;
+        p2 = b;
+    }
+
+    public Vector3(Point3 a) {
+        type = UNIT_VECTOR;
+        p1 = new Point3(0, 0, 0);
+        p2 = a;
+    }
+
+    public void setPointA(Point3 p) { p1 = p; }
+    public void setPointB(Point3 p) { p2 = p; }
+
+    public int getType() { return type; }
+    public Point3 getPointA() { return p1; }
+    public Point3 getPointB() { return p2; }
+    public Point3[] getPoints() {
+        Point3[] temp = new Point3[2];
+        temp[0] = p1;
+        temp[1] = p2;
+        return temp;
+    }
+    public Vector3 getUnitVector() {
+        return new Vector3(p2.getPosX()-p1.getPosX(), p2.getPosY()-p1.getPosY(), p2.getPosZ()-p1.getPosZ());
+    }
+    public double getMagnitude() {
+        //return (p2.getPosX()*p1.getPosX()) + (p2.getPosY()*p1.getPosY()) + (p2.getPosZ()*p1.getPosZ());
+        return Math.sqrt(Math.exp(getUnitVector().getPointB().getPosX()) + Math.exp(getUnitVector().getPointB().getPosY()) + Math.exp(getUnitVector().getPointB().getPosZ()));
     }
 
 }

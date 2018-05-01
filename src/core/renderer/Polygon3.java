@@ -21,10 +21,10 @@ public class Polygon3 extends Polygon implements Comparable<Polygon3>, Renderabl
         }
     }
 
-    public void setColor(Color c) { color = c; }
-    public Color getColor() { return color; }
     public boolean isVisible() { return isVisible; }
 
     public void setVisible(boolean b) { isVisible = b; }
+    public Color getColor() { return color; }
+    public void setColor(Color c) { color = c; }
 
 }
