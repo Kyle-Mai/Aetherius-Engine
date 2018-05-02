@@ -2,7 +2,7 @@ package core.renderer;
 
 import java.awt.*;
 
-public class Polygon3 extends Polygon implements Comparable<Polygon3>, Renderable {
+public class Polygon3 extends Polygon implements Comparable<Polygon3> {
 
     private int z;
     private boolean isVisible = true;
@@ -22,7 +22,6 @@ public class Polygon3 extends Polygon implements Comparable<Polygon3>, Renderabl
     }
 
     public boolean isVisible() { return isVisible; }
-
     public void setVisible(boolean b) { isVisible = b; }
     public Color getColor() { return color; }
     public void setColor(Color c) { color = c; }

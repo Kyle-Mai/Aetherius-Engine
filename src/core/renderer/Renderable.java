@@ -5,4 +5,7 @@ package core.renderer;
  */
 public interface Renderable {
     boolean isVisible();
+    void scale(Vector3 e);
+    void translate(Vector3 e);
+    Point3 getOrigin();
 }

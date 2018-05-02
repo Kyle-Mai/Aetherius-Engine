@@ -2,7 +2,12 @@ package core.renderer;
 
 import core.gui.XFrame;
 import core.gui.XPanel;
+import core.locale.KeybindList;
+
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
@@ -14,8 +19,9 @@ public class Raster {
 
     Graphics g;
     int a = 0;
+    private RenderPlane plane = new RenderPlane(30, 8, 2);
     Point3 camera = new Point3(-3, -2, -7);
-    Orientation3 camrot = new Orientation3(Math.toRadians(0), Math.toRadians(25), Math.toRadians(0));
+    Orientation3 camrot = new Orientation3(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0));
 
     private ArrayList<Vertice> verts = new ArrayList<>();
     int fovlevel = 500;
@@ -54,7 +60,7 @@ public class Raster {
         label.setVisible(true);
 
         Object3 cube = new Object3(
-                new Vector3(0, 0, 0),
+                new Point3(0, 0, 0),
                 new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1), 1), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1), -1)),
                 new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1), 1), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1), -1)),
                 new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1), 1)),
@@ -63,10 +69,11 @@ public class Raster {
                 new Face(Color.CYAN, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(0, 0, 1), 1), new Vertice(new Point3(1, 0, 1), new Point3(0, 0, 1), new Point3(1, 0, 0), 1))
         );
         cube.scale(new Vector3(2, 2, 2));
-        objects.add(cube);
+        //objects.add(cube);
+        plane.addToCells(cube);
 
         Object3 cube2 = new Object3(
-                new Vector3(0, 0, 0),
+                new Point3(0, 0, 0),
                 new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1), 1), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1), -1)),
                 new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1), 1), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1), -1)),
                 new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1), 1)),
@@ -75,11 +82,12 @@ public class Raster {
                 new Face(Color.CYAN, new Vertice(new Point3(0, 0, 0), new Point3(1, 0, 0), new Point3(0, 0, 1), 1), new Vertice(new Point3(1, 0, 1), new Point3(0, 0, 1), new Point3(1, 0, 0), 1))
         );
         cube2.scale(new Vector3(1.4, 1.4, 1.4));
-        cube2.translate(new Vector3(3, 0, 3));
-        objects.add(cube2);
+        cube2.translate(new Vector3(3, 0, 10));
+        //objects.add(cube2);
+        plane.addToCells(cube2);
 
         Object3 cube3 = new Object3(
-                new Vector3(0, 0, 0),
+                new Point3(0, 0, 0),
                 new Face(Color.RED, new Vertice(new Point3(1, 0, 0), new Point3(1, 1, 0), new Point3(1, 1, 1), 1), new Vertice(new Point3(1, 0, 0), new Point3(1, 0, 1), new Point3(1, 1, 1), -1)),
                 new Face(Color.ORANGE, new Vertice(new Point3(0, 0, 1), new Point3(1, 0, 1), new Point3(1, 1, 1), 1), new Vertice(new Point3(0, 0, 1), new Point3(0, 1, 1), new Point3(1, 1, 1), -1)),
                 new Face(Color.black, new Vertice(new Point3(0, 0, 0), new Point3(0, 1, 0), new Point3(0, 1, 1), -1), new Vertice(new Point3(0, 0, 0), new Point3(0, 0, 1), new Point3(0, 1, 1), 1)),
@@ -89,11 +97,57 @@ public class Raster {
         );
         cube3.scale(new Vector3(1, 4, 3));
         cube3.translate(new Vector3(5, -2, -4));
-        objects.add(cube3);
+        //objects.add(cube3);
+        plane.addToCells(cube3);
 
         System.out.println("Completed setup");
         draw();
         anim();
+    }
+
+    public void addMovementControls() {
+        label.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "forward");
+        label.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "back");
+        label.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "left");
+        label.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "right");
+        label.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "up");
+        label.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0, false), "down");
+        label.getActionMap().put("forward", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                camera.setPosZ(camera.getPosZ() + 0.08);
+            }
+        });
+        label.getActionMap().put("back", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                camera.setPosZ(camera.getPosZ() - 0.08);
+            }
+        });
+        label.getActionMap().put("left", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                camera.setPosX(camera.getPosX() - 0.08);
+            }
+        });
+        label.getActionMap().put("right", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                camera.setPosX(camera.getPosX() + 0.08);
+            }
+        });
+        label.getActionMap().put("up", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                camera.setPosY(camera.getPosY() - 0.08);
+            }
+        });
+        label.getActionMap().put("down", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                camera.setPosY(camera.getPosY() + 0.08);
+            }
+        });
     }
 
     public void render(Vertice v) {
@@ -174,20 +228,32 @@ public class Raster {
     public void anim() {
         while (true) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(25);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             a += 1;
             camera = new Point3(6 * Math.cos(Math.toRadians(a)) + 0, 3*Math.cos(Math.toRadians(a)) + 1,-6 * Math.sin(Math.toRadians(a)) - 0);
+            //camera = new Point3(a/20, 1, 0);
+            //camera = new Point3(0, -2,-12 * Math.sin(Math.toRadians(a)) - 5);
             camrot = new Orientation3(Math.toRadians(0), Math.toRadians(180) + Math.atan2(camera.getPosX() - 1, camera.getPosZ() - 1), 0); // Y X Z
             //objects.get(0).scale(new Vector3(40 * Math.cos(Math.toRadians(a)) + 50, 25 * Math.sin(Math.toRadians(a)) + 50,25 * Math.sin(Math.toRadians(a)) + 50));
 
-            for (Object3 obj : objects) {
-                for (Face f : obj.getFaces()) {
-                    render(f);
+            for (RenderCell c : plane.getRenderedCells(camera)) {
+                if (c != null && c.getItemCount() > 0) {
+                    for (Object3 obj : c.getItems()) {
+                        for (Face f : obj.getFaces()) {
+                            render(f);
+                        }
+                    }
                 }
             }
+
+            //for (Object3 obj : objects) {
+            //    for (Face f : obj.getFaces()) {
+            //        render(f);
+            //    }
+            //}
             draw();
             //System.out.println(lines.size());
         }
@@ -237,7 +303,7 @@ public class Raster {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             g.setColor(Color.BLACK);
-            System.out.println("START RENDER CYCLE");
+            //System.out.println("START RENDER CYCLE");
             while (!polys.isEmpty()) {
                 //System.out.println(polys.peek().getBounds().height + " " + polys.peek().getBounds().width);
                 //System.out.println(Math.atan2(polys.get(i).getBounds().height, polys.get(i).getBounds().width));

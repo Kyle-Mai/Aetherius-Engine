@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class Object3 implements Renderable {
 
     private ArrayList<Face> faces = new ArrayList<>();
-    private Vector3 origin;
+    private Point3 origin;
     private boolean isVisible = true;
 
     public Object3(Object3 copy) {
@@ -21,7 +21,7 @@ public class Object3 implements Renderable {
         faces.addAll(Arrays.asList(f));
     }
 
-    public Object3(Vector3 o, Face...f) {
+    public Object3(Point3 o, Face...f) {
         faces.addAll(Arrays.asList(f));
         origin = o;
     }
@@ -40,11 +40,12 @@ public class Object3 implements Renderable {
                 v.translate(tr);
             }
         }
+        origin = Vectors.translate(new Vector3(origin.getPosX(), origin.getPosY(), origin.getPosZ()), tr).getPointB();
     }
 
     public ArrayList<Face> getFaces() { return faces; }
-    public void setOrigin(Vector3 o) { origin = o; }
-    public Vector3 getOrigin() { return origin; }
+    public void setOrigin(Point3 o) { origin = o; }
+    public Point3 getOrigin() { return origin; }
     public void setVisible(boolean b) { isVisible = b; }
     public boolean isVisible() { return isVisible; }
 

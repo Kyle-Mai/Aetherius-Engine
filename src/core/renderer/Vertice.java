@@ -1,9 +1,10 @@
 package core.renderer;
 
-public class Vertice implements VectorConstants, RenderConstants {
+public class Vertice implements VectorConstants, RenderConstants, Renderable {
 
     private int normalOrientation = NORMAL_R;
     private Vector3[] vectors = new Vector3[3];
+    private boolean isVisible = true;
 
     public Vertice(Point3 o, Point3 p2, Point3 p3) {
         vectors[0] = new Vector3(p2, p3);
@@ -68,7 +69,7 @@ public class Vertice implements VectorConstants, RenderConstants {
     public Point3 getOrigin() {
         return vectors[1].getPointA();
     }
-
+    public boolean isVisible() { return isVisible; }
     public Vector3[] getVectors() { return vectors; }
 
     public Point3 getPointA() { return vectors[0].getPointA(); }
